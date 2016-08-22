@@ -1,0 +1,334 @@
+/*jshint multistr: true ,node: true*/
+"use strict";
+
+var
+    /* Node Intenal */
+    REQUEST      = require('request'),
+    UTIL         = require('util'),
+
+    /* NPM Third Party */
+    _            = require('lodash'),
+
+    B           = require('./baseService.js');
+
+
+
+function orderCreationPlugin() {
+
+    var
+        self = this;
+
+    B.call(self);
+
+}
+
+UTIL.inherits(orderCreationPlugin, B);
+/*
+    Request Opts specific method ::
+
+        * getRequestUrl      -> returns the request url
+        * getRequestMethod   -> returns request method(default: POST)
+        * getRequestTimeout  -> returns request timeout(default: 30 seconds)
+        * getRequestHeaders  -> returns request headers(default: null)
+        * getRequestBody     -> returns request body
+        * getHttpRequestOpts -> returns a complete Http Request Options using the above functions.
+*/
+
+
+orderCreationPlugin.prototype.getRequestUrl = function() {
+    /*
+        * Extracts `createOrderUrl` key from this.getSettings() by default.
+
+        * Override this to set any other key for returning Url.
+
+        * NOTE:: That key should be available in the `manifest.json` file.
+    */
+
+    var
+        self        = this;
+
+    return _.get(self.getSettings(), 'createOrderUrl');
+
+};
+
+orderCreationPlugin.prototype.getRequestMethod = function() {
+    /*
+        * Extracts `createOrderRequestMethod` key from this.getSettings() by default.
+
+        * Default return value is "POST" if `createOrderRequestMethod` is not found
+          in this.getSettings().
+    */
+
+    var
+        self        = this;
+
+    return _.get(self.getSettings(), 'createOrderRequestMethod', 'POST');
+
+};
+
+orderCreationPlugin.prototype.getRequestTimeout = function () {
+    /*
+        * Extracts `createOrderRequestTimeout` key from this.getSettings() by default.
+
+        * Default return value is 30 seconds if `createOrderRequestTimeout` is not found
+          in this.getSettings().
+    */
+
+    var
+        self        = this;
+
+    return _.get(self.getSettings(), 'createOrderRequestTimeout', 30 * 1000);
+
+};
+
+orderCreationPlugin.prototype.getRequestHeaders = function() {
+    /*
+        * Extracts `createOrderHeaders` key from this.getSettings() by default.
+
+        * Default return value is null.
+    */
+
+    var
+        self        = this;
+
+    return _.get(self.getSettings(), 'createOrderHeaders', null);
+
+};
+
+orderCreationPlugin.prototype.getRequestBody = function(orderCreationData) {
+
+    /*
+        * Override this function only to set key `body` on reqOpts.
+        * By default this function will return null
+
+        * Also `getRequestBody` and `getRequestForm` are mutually exclusive
+        * At a time only one of them will be overridden and hence one of them
+          must return data.
+
+    */
+
+    return null;
+
+};
+
+orderCreationPlugin.prototype.getRequestForm = function(orderCreationData) {
+
+    /*
+        * Override this function only to set key `form` on reqOpts.
+        * By default this function will return null
+
+        * Also `getRequestBody` and `getRequestForm` are mutually exclusive
+        * At a time only one of them will be overridden and hence one of them
+          must return data.
+
+    */
+
+    return null;
+
+};
+
+orderCreationPlugin.prototype.getPostHttpExtraOpts = function() {
+
+    /*
+        * This function will be used when certain additional keys are required
+          to be set on the reqOpts, For eg ::
+
+                {
+                    json: true
+                }
+
+        * By default it will return null, meaning that no extra keys are required
+          to be set on the reqOpts.
+
+        * Since it returns a object, `getHttpRequestOpts` will iterate over the keys
+          of the returned object and for each key it will set a value in the main
+          reqOpts.
+    */
+
+    return null;
+
+};
+
+orderCreationPlugin.prototype.getHttpRequestOpts = function (callback, orderCreationData) {
+
+    /*
+        This function will create request options
+        Though this is a function which creates data in a particular format,
+        it expects a callback to allow it to easily extend it in future, hence keeping it as async.
+        A use case where callback may be required is creating a hash or crypt something.
+    */
+
+    var
+        self            = this,
+        additionalOpts  = null,
+        err             = null,
+        headers         = null,
+        reqBody         = null,
+        reqFormData     = null,
+        reqOpts         = {
+            url             : self.getRequestUrl(),
+            method          : self.getRequestMethod(),
+            timeout         : self.getRequestTimeout()
+        };
+
+    /*
+        * Check if there is body for this request
+        * If yes, then set the key to reqOpts as `body`
+
+        * NOTE:: At a time, only one of them should be overridden.
+    */
+
+    reqBody = self.getRequestBody(orderCreationData);
+    if (reqBody) {
+        reqOpts.body = reqBody;
+    }
+
+    /*
+        * Check if there is form for this request
+        * If yes, then set the key to reqOpts as `form`
+    */
+
+    reqFormData = self.getRequestForm(orderCreationData);
+    if (reqFormData) {
+        reqOpts.form = reqFormData;
+    }
+
+    /*
+        check if there is header key
+    */
+    headers = self.getRequestHeaders();
+    if (headers){
+        reqOpts.headers = headers;
+    }
+
+    /*
+        * Check if the reqOpts requires some additional Http Opts.
+    */
+
+    additionalOpts = self.getPostHttpExtraOpts();
+
+    if (additionalOpts && Object.keys(additionalOpts).length) {
+
+        Object.keys(additionalOpts).forEach(function(addOnKey){
+
+            reqOpts[addOnKey] = additionalOpts[addOnKey];
+
+        });
+
+    }
+
+    return callback(err, reqOpts);
+
+};
+
+
+orderCreationPlugin.prototype.hitHttpApi = function(orderCreationData, reqOpts) {
+
+    /*
+        This function will hit shipper to create Order.
+    */
+
+    var
+        self            = this;
+
+    /* LOG what is being sent over network */
+    self.logger.log('Order create request sent with reqOpts', reqOpts);
+
+    REQUEST(reqOpts, self.parseHttpResponse.bind(self, orderCreationData));
+
+};
+
+
+orderCreationPlugin.prototype.parseHttpResponse = function(orderCreationData, error, response, body) {
+    /*
+        This function decides the flow depending upon the response status code
+
+        If response.statusCode is 200, it will call `successOrderCreation`
+        Else it will call `failureOrderCreation`
+    */
+
+    var
+        self        = this;
+
+    if( error || (!response) || ( response  && response.statusCode !== 200) ){
+
+        self.logger.log('Error in creating order at shipper for fulfillment data ', orderCreationData);
+        self.failureOrderCreation(orderCreationData, _.get(response, 'statusCode', null), error);
+
+    }
+
+    if ( !error && response.statusCode === 200 ) {
+
+        self.logger.log('Order Creation successful for ', orderCreationData);
+        self.successOrderCreation(orderCreationData, response.statusCode, body);
+
+    }
+
+};
+
+
+orderCreationPlugin.prototype.failureOrderCreation = function(orderCreationData, statusCode, error) {
+
+    var self = this;
+
+    self.orderCreationOver(false, orderCreationData, statusCode, error.message);
+
+};
+
+
+orderCreationPlugin.prototype.successOrderCreation = function(orderCreationData, statusCode, body) {
+
+    var self = this;
+
+    self.orderCreationOver(true, orderCreationData, statusCode, body);
+
+};
+
+
+orderCreationPlugin.prototype.orderCreationOver = function(isOrderSuccessfullyCreated, orderCreationData, code, body){
+
+    /*
+        This will be the last function called.
+    */
+
+    var self = this;
+
+    if( isOrderSuccessfullyCreated === true ) {
+        self.logger.log('Success in creating order', body);
+    } else {
+        self.logger.log('Failure in creating order', body);
+    }
+
+    self.emit('manifestOver', isOrderSuccessfullyCreated, orderCreationData, body);
+
+};
+
+
+orderCreationPlugin.prototype.createOrderInit = function(orderCreationData){
+
+    var
+        self    = this;
+
+
+    /*
+        Idea is to call only a single function `getHttpRequestOpts`
+        This function will internally handle and create all the required
+        attributes on its own.
+    */
+
+    self.getHttpRequestOpts(function(error, reqOpts){
+
+        /*
+            After the request options are successfully created,
+            proceed to hit shipper
+
+        */
+
+        self.hitHttpApi(orderCreationData, reqOpts);
+
+    }, orderCreationData);
+
+};
+
+
+module.exports = orderCreationPlugin;
