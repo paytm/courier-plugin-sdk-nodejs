@@ -386,6 +386,7 @@ pullPlugin.prototype.trackingComplete = function(trackingSuccessful, pullData, c
         This will be the last function called.
     */
 
+    var self = this;
 
     if( trackingSuccessful === true ) {
         self.logger.log('Tracking details successfully fetched', body);
@@ -393,7 +394,7 @@ pullPlugin.prototype.trackingComplete = function(trackingSuccessful, pullData, c
         self.logger.log('Failure in in fetching tracking details', body);
     }
 
-    eventEmitter.emit('trackingComplete', trackingSuccessful, pullData, body);
+    self.emit('trackingComplete', trackingSuccessful, pullData, body);
 
 };
 
