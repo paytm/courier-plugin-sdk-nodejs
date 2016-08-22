@@ -321,7 +321,7 @@ cancelPlugin.prototype.cancelNotificationOver = function(isCancelSuccessfullyNot
         self.logger.log('Cancel notification failed', body);
     }
 
-    eventEmitter.emit('cancelNotified', isCancelSuccessfullyNotified, cancelData, body);
+    self.emit('cancelNotified', isCancelSuccessfullyNotified, cancelData, body);
 
 };
 
