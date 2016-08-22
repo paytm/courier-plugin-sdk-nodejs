@@ -1,0 +1,7 @@
+{
+      "version": "0.0.1",
+      "settings": {
+      "Base":"http://example.com/",
+      "createOrderRequestTimeout": 30000
+    }
+}
