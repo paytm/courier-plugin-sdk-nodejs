@@ -36,7 +36,7 @@ UTIL.inherits(pullPlugin, B);
 
 pullPlugin.prototype.getRequestUrl = function() {
     /*
-        * Extracts `pullFetchUrl` key from this.getSettings() by default.
+        * Extracts `settings.pullFetchUrl` key from this.getSettings() by default.
 
         * Override this to set any other key for returning Url.
 
@@ -46,43 +46,43 @@ pullPlugin.prototype.getRequestUrl = function() {
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'pullFetchUrl');
+    return _.get(self.getSettings(), 'settings.pullFetchUrl');
 
 };
 
 pullPlugin.prototype.getRequestMethod = function() {
     /*
-        * Extracts `pullFetchRequestMethod` key from this.getSettings() by default.
+        * Extracts `settings.pullFetchRequestMethod` key from this.getSettings() by default.
 
-        * Default return value is "GET" if `pullFetchRequestMethod` is not found
+        * Default return value is "GET" if `settings.pullFetchRequestMethod` is not found
           in this.getSettings().
     */
 
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'pullFetchRequestMethod', 'GET');
+    return _.get(self.getSettings(), 'settings.pullFetchRequestMethod', 'GET');
 
 };
 
 pullPlugin.prototype.getRequestTimeout = function () {
     /*
-        * Extracts `pullFetchRequestTimeout` key from this.getSettings() by default.
+        * Extracts `settings.pullFetchRequestTimeout` key from this.getSettings() by default.
 
-        * Default return value is 30 seconds if `pullFetchRequestTimeout` is not found
+        * Default return value is 30 seconds if `settings.pullFetchRequestTimeout` is not found
           in this.getSettings().
     */
 
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'pullFetchRequestTimeout', 30 * 1000);
+    return _.get(self.getSettings(), 'settings.pullFetchRequestTimeout', 30 * 1000);
 
 };
 
 pullPlugin.prototype.getRequestHeaders = function() {
     /*
-        * Extracts `pullFetchHeaders` key from this.getSettings() by default.
+        * Extracts `settings.pullFetchHeaders` key from this.getSettings() by default.
 
         * Default return value is null.
     */
@@ -90,7 +90,7 @@ pullPlugin.prototype.getRequestHeaders = function() {
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'pullFetchHeaders', null);
+    return _.get(self.getSettings(), 'settings.pullFetchHeaders', null);
 
 };
 
