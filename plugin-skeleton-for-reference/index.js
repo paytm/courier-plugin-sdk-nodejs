@@ -3,7 +3,8 @@
 
 var
     /* Project itself */
-    M             = require('./createOrder.js');
+    C             = require('./createOrder.js'),
+    P             = require('./pull.js');
 
 
 module.exports = {
@@ -12,5 +13,6 @@ module.exports = {
 
     
     // always Create a new object for manifest or whatever service plugin is providing
-    createOrder : new C()
+    createOrder : new C(),
+    pull        : new P()
 }
