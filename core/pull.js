@@ -339,7 +339,7 @@ pullPlugin.prototype.failurePullFetch = function(pullData, statusCode, error) {
 
 };
 
-pullPlugin.prototype.markshipped = function(pullData, statusCode, body) {
+pullPlugin.prototype.markShipped = function(pullData, statusCode, body) {
 
     var self = this;
 
