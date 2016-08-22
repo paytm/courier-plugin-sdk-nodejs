@@ -1,0 +1,27 @@
+{
+  "name": "courier-plugin-sdk-nodejs",
+  "version": "0.0.1",
+  "description": "This plugin can be used to test the plugin that courier needs to develop.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paytm/courier-plugin-sdk-nodejs.git"
+  },
+  "author": "Shrey Agarwal",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "~3.0.0"
+  },
+  "dependencies": {
+    "request": "~2.33.0",
+    "moment": "~2.10.6",
+    "lodash": "~3.8.0",
+    "jsonminify": "~0.4.1"
+  }
+}
