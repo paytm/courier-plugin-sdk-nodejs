@@ -37,7 +37,7 @@ UTIL.inherits(orderCreationPlugin, B);
 
 orderCreationPlugin.prototype.getRequestUrl = function() {
     /*
-        * Extracts `createOrderUrl` key from this.getSettings() by default.
+        * Extracts `settings.createOrderUrl` key from this.getSettings() by default.
 
         * Override this to set any other key for returning Url.
 
@@ -47,43 +47,43 @@ orderCreationPlugin.prototype.getRequestUrl = function() {
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'createOrderUrl');
+    return _.get(self.getSettings(), 'settings.createOrderUrl');
 
 };
 
 orderCreationPlugin.prototype.getRequestMethod = function() {
     /*
-        * Extracts `createOrderRequestMethod` key from this.getSettings() by default.
+        * Extracts `settings.createOrderRequestMethod` key from this.getSettings() by default.
 
-        * Default return value is "POST" if `createOrderRequestMethod` is not found
+        * Default return value is "POST" if `settings.createOrderRequestMethod` is not found
           in this.getSettings().
     */
 
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'createOrderRequestMethod', 'POST');
+    return _.get(self.getSettings(), 'settings.createOrderRequestMethod', 'POST');
 
 };
 
 orderCreationPlugin.prototype.getRequestTimeout = function () {
     /*
-        * Extracts `createOrderRequestTimeout` key from this.getSettings() by default.
+        * Extracts `settings.createOrderRequestTimeout` key from this.getSettings() by default.
 
-        * Default return value is 30 seconds if `createOrderRequestTimeout` is not found
+        * Default return value is 30 seconds if `settings.createOrderRequestTimeout` is not found
           in this.getSettings().
     */
 
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'createOrderRequestTimeout', 30 * 1000);
+    return _.get(self.getSettings(), 'settings.createOrderRequestTimeout', 30 * 1000);
 
 };
 
 orderCreationPlugin.prototype.getRequestHeaders = function() {
     /*
-        * Extracts `createOrderHeaders` key from this.getSettings() by default.
+        * Extracts `settings.createOrderHeaders` key from this.getSettings() by default.
 
         * Default return value is null.
     */
@@ -91,7 +91,7 @@ orderCreationPlugin.prototype.getRequestHeaders = function() {
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'createOrderHeaders', null);
+    return _.get(self.getSettings(), 'settings.createOrderHeaders', null);
 
 };
 
