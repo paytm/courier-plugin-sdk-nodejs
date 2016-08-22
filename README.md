@@ -95,11 +95,11 @@ For eg ::
 By default it will return null, meaning that no extra keys are required to be set on the reqOpts.
 Since it returns a object, `getHttpRequestOpts` will iterate over the keys of the returned object and for each key it will set a value in the main reqOpts.
 
-10) __hitHttpApi(reqOpts)__:
+10) __hitHttpApi(orderCreationData, reqOpts)__:
 
 The only work that this function will do is hit the shipper at the requested url. It will be given a complete requestOpts. This function is not taking any callback, because of the same reasons for which `createOrderInit` is not taking any callback. After requesting with the shipper, it will call `parseHttpResponse` with error, response and body as the arguments.
 
-11) __parseHttpResponse(error, response, body)__:
+11) __parseHttpResponse(orderCreationData, error, response, body)__:
 
 This is called when the request from shipper is completed. It will be the main function for deciding whether the response received is a success or failure one. The most basic approach to decide success and failure will be something on the lines of
 
