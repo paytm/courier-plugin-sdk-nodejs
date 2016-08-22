@@ -37,7 +37,7 @@ UTIL.inherits(cancelPlugin, B);
 
 cancelPlugin.prototype.getRequestUrl = function() {
     /*
-        * Extracts `cancelNotifyUrl` key from this.getSettings() by default.
+        * Extracts `settings.cancelNotifyUrl` key from this.getSettings() by default.
 
         * Override this to set any other key for returning Url.
 
@@ -47,43 +47,43 @@ cancelPlugin.prototype.getRequestUrl = function() {
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'cancelNotifyUrl');
+    return _.get(self.getSettings(), 'settings.cancelNotifyUrl');
 
 };
 
 cancelPlugin.prototype.getRequestMethod = function() {
     /*
-        * Extracts `cancelNotifyRequestMethod` key from this.getSettings() by default.
+        * Extracts `settings.cancelNotifyRequestMethod` key from this.getSettings() by default.
 
-        * Default return value is "POST" if `cancelNotifyRequestMethod` is not found
+        * Default return value is "POST" if `settings.cancelNotifyRequestMethod` is not found
           in this.getSettings().
     */
 
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'cancelNotifyRequestMethod', 'POST');
+    return _.get(self.getSettings(), 'settings.cancelNotifyRequestMethod', 'POST');
 
 };
 
 cancelPlugin.prototype.getRequestTimeout = function () {
     /*
-        * Extracts `cancelNotifyRequestTimeout` key from this.getSettings() by default.
+        * Extracts `settings.cancelNotifyRequestTimeout` key from this.getSettings() by default.
 
-        * Default return value is 30 seconds if `cancelNotifyRequestTimeout` is not found
+        * Default return value is 30 seconds if `settings.cancelNotifyRequestTimeout` is not found
           in this.getSettings().
     */
 
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'cancelNotifyRequestTimeout', 30 * 1000);
+    return _.get(self.getSettings(), 'settings.cancelNotifyRequestTimeout', 30 * 1000);
 
 };
 
 cancelPlugin.prototype.getRequestHeaders = function() {
     /*
-        * Extracts `cancelNotifyHeaders` key from this.getSettings() by default.
+        * Extracts `settings.cancelNotifyHeaders` key from this.getSettings() by default.
 
         * Default return value is null.
     */
@@ -91,7 +91,7 @@ cancelPlugin.prototype.getRequestHeaders = function() {
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'cancelNotifyHeaders', null);
+    return _.get(self.getSettings(), 'settings.cancelNotifyHeaders', null);
 
 };
 
