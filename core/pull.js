@@ -69,14 +69,14 @@ pullPlugin.prototype.getRequestTimeout = function () {
     /*
         * Extracts `settings.pullFetchRequestTimeout` key from this.getSettings() by default.
 
-        * Default return value is 30 seconds if `settings.pullFetchRequestTimeout` is not found
+        * Default return value is 75 seconds if `settings.pullFetchRequestTimeout` is not found
           in this.getSettings().
     */
 
     var
         self        = this;
 
-    return _.get(self.getSettings(), 'settings.pullFetchRequestTimeout', 30 * 1000);
+    return _.get(self.getSettings(), 'settings.pullFetchRequestTimeout', 75 * 1000);
 
 };
 
@@ -310,22 +310,18 @@ pullPlugin.prototype.parseHttpResponse = function(pullData, error, response, bod
     if( error || (!response) || (response && response.statusCode !== 200) ){
 
         self.logger.log('Error in fetching tracking data at shipper for ', pullData);
-        self.failurePullFetch(pullData, response.statusCode, error);
+        self.failurePullFetch(pullData, _.get(response, 'statusCode', null), error);
     }
 
     if ( !error && response.statusCode === 200 ) {
 
+        self.logger.log('Success in fetching tracking details for ', pullData);
+
         /*
-            Here you can call any of the following functions
-              * markShipped
-              * markDelivered
-              * returnPicked
-              * returnDelivered
-              * rtoInitiated
+            Here response body should be parsed depending upon the format
         */
 
-        self.logger.log('Success in fetching tracking details for ', pullData);
-        self.markDelivered(pullData, response.statusCode, body);
+        self.updateStatus(pullData, body);
     }
 
 };
@@ -335,47 +331,86 @@ pullPlugin.prototype.failurePullFetch = function(pullData, statusCode, error) {
 
     var self = this;
 
-    self.trackingComplete(false, pullData, statusCode, error.message);
+    self.trackingComplete(false, pullData, statusCode, _.get(error, 'message', null));
 
 };
 
-pullPlugin.prototype.markShipped = function(pullData, statusCode, body) {
+
+pullPlugin.prototype.updateStatus = function(pullData, parsedResponse) {
 
     var self = this;
 
-    self.trackingComplete(true, pullData, statusCode, body);
+    self.trackingComplete(true, pullData, 200, parsedResponse);
 
 };
 
-pullPlugin.prototype.markDelivered = function(pullData, statusCode, body) {
+pullPlugin.prototype.getAwbFromResponse = function (shipment) {
 
-    var self = this;
+    /*
+        This function extracts awb from parsed response `shipment`.
+    */
 
-    self.trackingComplete(true, pullData, statusCode, body);
+    var
+        self        = this,
+        awb         = null;
 
-};
-
-pullPlugin.prototype.returnPicked = function(pullData, statusCode, body) {
-
-    var self = this;
-
-    self.trackingComplete(true, pullData, statusCode, body);
+    return awb;
 
 };
 
-pullPlugin.prototype.returnDelivered = function(pullData, statusCode, body) {
+pullPlugin.prototype.getStatusCodeFromResponse = function (shipment) {
 
-    var self = this;
+    /*
+        This function extracts status from parsed response `shipment`.
+    */
 
-    self.trackingComplete(true, pullData, statusCode, body);
+    var
+        self            = this,
+        statusCode      = null;
+
+    return statusCode;
 
 };
 
-pullPlugin.prototype.rtoInitiated = function(pullData, statusCode, body) {
+pullPlugin.prototype.getDateFromResponse = function (shipment) {
 
-    var self = this;
+    /*
+        This function extracts date from parsed response `shipment`.
+    */
 
-    self.trackingComplete(true, pullData, statusCode, body);
+    var
+        self            = this,
+        date            = null;
+
+    return date;
+
+};
+
+pullPlugin.prototype.getTimeFromResponse = function (shipment) {
+
+    /*
+        This function extracts time from parsed response `shipment`.
+    */
+
+    var
+        self            = this,
+        time            = null;
+
+    return time;
+
+};
+
+pullPlugin.prototype.getDateFormat = function (shipment) {
+
+    /*
+        This function extracts dateformat from parsed response `shipment`.
+    */
+
+    var
+        self            = this,
+        dateFormat      = null;
+
+    return dateFormat;
 
 };
 
