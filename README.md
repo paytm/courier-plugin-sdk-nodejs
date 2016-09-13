@@ -288,6 +288,8 @@ After the response is received from shipper, to extract details from it and take
 
 This takes as its first argument a flag, which indicates whether the tracking details was successfully fetched or not.
 
+To see how to override functions, see a sample in `plugin-skeleton-for-reference/pull.js`.
+
 ### Convention
 
 * We prefer to use [Lodash](https://lodash.com/) for anything related to extracting a certain key value from any object to concatinating arrays.
