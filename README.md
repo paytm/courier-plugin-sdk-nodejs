@@ -194,7 +194,7 @@ to get details for object like request method, url, headers, timeout and the mos
 
 3) __getRequestUrl()__*:
 
-This extracts `pullFetchUrl` key from `this.getSettings()` and returns the value of it. If you want to specify any other key like `baseURL + pullURL`, override this function. 
+This extracts `pullFetchUrl` key from `this.getSettings()` and returns the value of it. If you want to specify any other key like `myAwesomeKey`, override this function. Ideally overriding this function just for changing key name is not preferred.
 
 4) __getRequestMethod()__*:
 
@@ -254,7 +254,7 @@ On success it calls `updateStatus`and for failure it calls `failurePullFetch`.
 NOTE::
  - We prefer that _every_ shipper should __override__ this function. This is because response will be different for each shipper and corresponding to it what action needs to be taken is basically controlled by this function. 
  - The only thing that this function strictly enforces (design wise) is on __failure__(be it whatever condition), one should call `failurePullFetch` and on __success__ one should call `updateStatus`.
- - Also when `updateStatus` is called, we expect that it is called with the parsed body, which means it takes care of xml or json parsing.
+ - Also when `updateStatus` is called, we expect that it is called with the parsed body, which means it takes care of xml or json parsing. Hence parsing will be done in `parseHttpResponse` itself.
 
 14) __failurePullFetch(pullData, statusCode, error)__**:
 
@@ -282,7 +282,7 @@ After the response is received from shipper, to extract details from it and take
 
 20) __getDateFormat(shipment)__*:
 
-After the response is received from shipper, to extract details from it and take required actions, we need certain values. This will be extract __date format__ received from shipper.
+This extracts a key named `pullFetchDateTimeFormat` in `this.getSettings()` object. Default value is _DD-MM-YYYY HH:mm:ss_ if no such key is specified.
 
 21) __trackingComplete(trackingSuccessful, pullData, code, body)__**:
 
@@ -290,12 +290,190 @@ This takes as its first argument a flag, which indicates whether the tracking de
 
 To see how to override functions, see a sample in `plugin-skeleton-for-reference/pull.js`.
 
+### How to start writing a Plugin
+
+I have been through the documentation and FAQ. It is great but still I dont know where to start. Then this section is for you.
+
+To make things more simpler, lets us assume some things. Consider that we are planning to write __pull__ plugin for __XYZ__ shipper. `put-plugin-code-here-to-test` is the directory where plugin will live. From here onwards till the end of this section, it is the root directory. Assuming that you have cloned the repository, proceed as follows.
+
+* Copy index.js from `../plugin-skeleton-for-reference`. This file actually helps in requiring various services for a shipper. In the current file(`../plugin-skeleton-for-reference/index.js`), if the plugin is made live, then it will make `createOrder` and `pull` service live for `XYZ` shipper. Our use case is only writing a plugin for `pull` so lets delete that createOrder require line and object creation.
+
+Our `index.js` file will look something like
+
+```
+/*jshint multistr: true ,node: true*/
+"use strict";
+
+var P             = require('./pull.js');
+
+module.exports = {
+    pull : new P()
+};
+
+```
+
+* Next is the `manifest.json` file where we will keep various values like `pullFetchUrl` etc. It should be a json.
+
+* Next comes the file for our plugin. Since we are creating a `pull` plugin, so we will copy `pull.js` from `../plugin-skeleton-for-reference`. Had our example been of creating a `createOrder` plugin, we would have copied
+`createOrder.js`. Replace `testCourierPull` with the name of your courier(here __XYZ__). The sample plugin contains `getRequestUrl`. It is just for reference. You can remove if not required.
+
+Our `pull.js` file will look something like(keeping getRequestUrl to show a basic example of how to override function)
+
+```
+
+/*jshint multistr: true ,node: true*/
+"use strict";
+
+var
+    /* Node Intenal */
+    REQUEST             = require('request'),
+    UTIL                = require('util'),
+
+    /* NPM Third Party */
+    _                   = require('lodash'),
+
+    CORE_ORDER_PULL = require('../core/index.js').pull;
+
+function XYZ () {
+
+    var self            = this;
+
+    CORE_ORDER_PULL.call(self);
+
+}
+
+XYZ.prototype.getRequestUrl = function(){
+
+    var
+        self            = this ,
+        url             = _.get(self.getSettings(), 'settings.Base');
+
+    return url;
+};
+
+UTIL.inherits(XYZ, CORE_ORDER_PULL);
+
+module.exports = XYZ;
+
+```
+
+### Don'ts
+
+* Never keep querystring, body or json in `manifest.json` file.
+* Plugin should only live in `put-plugin-code-here-to-test`. Dont keep plugin in any other folder. Also dont rename this folder.
+* `put-plugin-code-here-to-test` should contain files `index.js`, `manifest.json` at level 1. These files should not be placed within any sub folder. Tree should be like
+
+```
+put-plugin-code-here-to-test
+  ├── createOrder.js
+  ├── index.js
+  ├── manifest.json
+  └── pull.js
+```
+
+* You cannot keep plguin code for more than 1 courier in a single file. Plugin for a courier should be isolated.
+
+
+
+
 ### Convention
 
-* We prefer to use [Lodash](https://lodash.com/) for anything related to extracting a certain key value from any object to concatinating arrays.
+* We prefer to use [Lodash](https://lodash.com/) for anything related to extracting a certain key value from any object to concatenating arrays.
 * We use [Moment](http://momentjs.com/) for date/time related operations.
 * As a stylistic convention, we prefer requires in capital, like
 
 ```
 var REQUEST = require('request');
 ```
+* Use camelCase convention where ever required.
+
+
+### Frequently Asked Questions
+
+Q. What is __pullData__ and from where it is received ?
+
+A. pullData is input data which is supplied internally by our system to the module dealing with couriers. `pullData` is an array of
+objects. Sample pullData can be like
+
+```
+pullData = [
+    {
+    tracking_number: "somevaluehere"
+    },
+    {
+    tracking_number: "somevalueherealso"
+    }
+]
+```
+
+Q. What other names are possible for __Tracking Number__?
+
+A. Tracking number in its most common form is knows as AWB(Airway Bill). Other possible names are docket number, dock number etc.
+
+Q. My request url is `http://www.example.com?awb=123`. Which function should I override?
+
+A. `awb=123` clearly tells us that this is querystring. So the function which should be overridden is `getRequestQueryString`.
+This function should return a object. For the above case, object will be like
+
+```
+{
+    "awb" : "123"
+}
+
+```
+
+Another example for url `http://www.example.com?awb=123&token=mytoken`, it will be like
+
+```
+{
+    "awb"   : "123",
+    "token" : "mytoken"
+}
+
+```
+
+__Q.__ I want to override `getRequestUrl` just for changing the key value. Is it preferred?
+
+__A.__ Ideally this is not preferred. When the url needs to be created by joining several key values, then this function should be overridden. Like you have a key called `baseUrl` and its tracking end point key is `trackUrl`. In that case override this function to return the combined value of both the keys.
+
+__Q.__ Default timeout value is 75 seconds. What should I do if I dont want to specify timeout value?
+
+__A.__ Timeout of 75 seconds is kept so that even the response is received from the slowest shipper. If you dont want it, leave it as it is.
+
+__Q.__ I need to send a string of awbs to the courier. What is the preferred way?
+
+__A.__ Ideally this should be done by initially pushing all the awbs in to an array and then joining that array over comma(,).
+
+__Q.__ When should I override `getRequestHeaders`?
+
+__A.__ In most of the cases, generally where some static headers are required, this function should not be overridden because we can keep static values in `manifest.json` file. Static here means that these headers will the same for any request per shipper. So the only case where this should be overridden is where you want some dynamic headers, like some header having current date time value.
+
+__Q.__ Can I write long and verbose comments?
+
+__A.__ We like comments a lot. But comments should be only written explaining the reason why a particular code is written unless it is not used for the documentation purpose. Also dont copy the comments blindly from the `core` folder.
+
+__Q.__ I already have written the plugin for one Service. What to do if I want to write another service for the same courier?
+
+__A.__ Lets us assume that you written `pull` plugin for `XYZ` shipper. Now you to write `createOrder` plugin for it, First of all create an entry in `put-plugin-code-here-to-test/index.js` of createOrder being required and its object being created in module.exports, like
+
+```
+/*jshint multistr: true ,node: true*/
+"use strict";
+
+var
+    C             = require('./createOrder.js'),
+    P             = require('./pull.js');
+
+module.exports = {
+
+    createOrder : new C(),
+    pull        : new P()
+}
+
+```
+
+Next step would be to create `createOrder.js` in `put-plugin-code-here-to-test` and then override functions as required. Also `manifest.json` file will be updated
+
+__Q.__ Are there any special libraries which is used while parsing json?
+
+__A.__ We prefer the traditional and best way of parsing json using `JSON.parse. Dont forget to wrap it inside a try-catch.
