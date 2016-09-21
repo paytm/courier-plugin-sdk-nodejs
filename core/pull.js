@@ -431,14 +431,16 @@ pullPlugin.prototype.getTimeFromResponse = function (shipment) {
 pullPlugin.prototype.getDateFormat = function (shipment) {
 
     /*
-        This function extracts dateformat from parsed response `shipment`.
+        This function is used internally to properly parse the date time in reponse
+        received.
+
+        It extracts the value from `this.getSettings()`. Default value is `DD-MM-YYYY HH:mm:ss`
     */
 
     var
-        self            = this,
-        dateFormat      = null;
+        self            = this;
 
-    return dateFormat;
+    return _.get(self.getSettings(), 'settings.pullFetchDateTimeFormat', 'DD-MM-YYYY HH:mm:ss');
 
 };
 
