@@ -337,8 +337,36 @@ pullPlugin.prototype.failurePullFetch = function(pullData, statusCode, error) {
 
 
 pullPlugin.prototype.updateStatus = function(pullData, parsedResponse) {
+    /*
+        This function is used to extract necessary details from the response.
 
-    var self = this;
+        This function REQUIRES a parsed response, which means it receives the response
+        after it is parsed from json or xml. Hence it becomes the sole responsibility of
+        `parseHttpResponse` to parse the response.
+
+    */
+
+
+    var
+        self            = this,
+        awb             = null,
+        date            = null,
+        time            = null,
+        status          = null;
+
+    // parsedResponse should be an array
+    if ( _.isArray(parsedResponse) === false )
+        parsedResponse  = [parsedResponse];
+
+    parsedResponse.forEach(function(eachData){
+
+        awb = self.getAwbFromResponse(eachData);
+        date = self.getDateFromResponse(eachData);
+        time = self.getTimeFromResponse(eachData);
+        status = self.getStatusCodeFromResponse(eachData);
+
+        self.logger.log('Awb : ' + awb + ', Date : ' + date + ', Time : ' + time + ', Status : ' + status );
+    });
 
     self.trackingComplete(true, pullData, 200, parsedResponse);
 
