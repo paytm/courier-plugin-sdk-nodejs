@@ -9,14 +9,14 @@ var
     /* NPM Third Party */
     _                   = require('lodash'),
 
-    CORE_ORDER_CREATION = require('../core/index.js').pull;
+    CORE_ORDER_PULL = require('../core/index.js').pull;
 
 function testCourierPull () {
 
     var self            = this;
 
     // calling super class
-    CORE_ORDER_CREATION.call(self);
+    CORE_ORDER_PULL.call(self);
 
 }
 
@@ -32,6 +32,6 @@ testCourierPull.prototype.getRequestUrl = function(){
     return url;
 };
 
-UTIL.inherits(testCourierPull, CORE_ORDER_CREATION);
+UTIL.inherits(testCourierPull, CORE_ORDER_PULL);
 
-module.exports = testCourierPull
+module.exports = testCourierPull;
