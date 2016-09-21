@@ -476,4 +476,31 @@ Next step would be to create `createOrder.js` in `put-plugin-code-here-to-test` 
 
 __Q.__ Are there any special libraries which is used while parsing json?
 
-__A.__ We prefer the traditional and best way of parsing json using `JSON.parse. Dont forget to wrap it inside a try-catch.
+__A.__ We prefer the traditional and best way of parsing json using `JSON.parse`. Dont forget to wrap it inside a try-catch.
+
+__Q.__ How xml parsing is done? Any special convention here?
+
+__A.__ We use [xml2json](https://github.com/buglabs/node-xml2json) with the following options
+
+```
+{
+    sanitize: true,
+    trim: true,
+    object: true
+}
+```
+
+__Q.__ How do I check whether my plugin is correct?
+
+__A.__ We have written a basic test case for each service. You can run all the test cases in one go by
+
+```
+mocha test
+```
+
+or to run a particular test pass that as an argument in grep like
+
+```
+# for pull
+mocha test --grep="Pull"
+```
