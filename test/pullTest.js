@@ -11,15 +11,16 @@ var
     PLUGIN           = require('../put-plugin-code-here-to-test');
 
 
-describe('Track', function() {
+describe('Pull', function() {
     
     it('Should call pullTrackDetails function and fetch tracking details', function(done){
 
         /* load settings in function we wish to use */
         var
+            dummyData        = null,
             manifestFilePath = __dirname + '/../put-plugin-code-here-to-test/manifest.json',
             eventEmitter     = null,
-            manifestFileData = null ;
+            manifestFileData = null;
 
         try {
             manifestFileData = JSON.parse(JSONMINIFY(FS.readFileSync(manifestFilePath, 'utf8')));
@@ -38,7 +39,17 @@ describe('Track', function() {
 
         });
 
-        PLUGIN.pull.pullTrackDetails();
+        /*
+            Insert tracking_number here for which you want to check. You can create multiple objects.
+        */
+
+        dummyData = [
+            {
+                tracking_number: ''
+            }
+        ];
+
+        PLUGIN.pull.pullTrackDetails(dummyData);
 
     });
        
