@@ -631,3 +631,16 @@ or to run a particular test pass that as an argument in grep like
 # for pull
 mocha test --grep="Pull"
 ```
+
+__Q.__ I need to pass sample awb provided by courier to check my complete flow. Where do I pass it?
+
+__A.__ The place where you will place the data is in test folder. Each file in test has a variable called `dummyData` which
+is an array of objects like
+
+```
+{
+    tracking_number: ''
+}
+```
+
+To pass multiple awbs, create copies of this object in the array.
