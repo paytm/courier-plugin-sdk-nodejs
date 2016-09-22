@@ -1,11 +1,9 @@
-/*jshint multistr: true ,node: true*/
+/*jshint multistr: true ,node: true, mocha:true*/
 "use strict";
 
 var
     FS               = require('fs'),
-    REQUEST          = require('request'),
 
-    _                = require('lodash'),
     JSONMINIFY       = require('jsonminify'),
 
     PLUGIN           = require('../put-plugin-code-here-to-test');
@@ -19,7 +17,6 @@ describe('Pull', function() {
         var
             dummyData        = null,
             manifestFilePath = __dirname + '/../put-plugin-code-here-to-test/manifest.json',
-            eventEmitter     = null,
             manifestFileData = null;
 
         try {
