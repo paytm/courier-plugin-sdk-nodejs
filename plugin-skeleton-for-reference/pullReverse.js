@@ -19,6 +19,8 @@ function testCourierPullReverse () {
 
 }
 
+UTIL.inherits(testCourierPullReverse, CORE_ORDER_PULL_REVERSE);
+
 testCourierPullReverse.prototype.getRequestUrl = function(){
     /*
         This overrides `getRequestUrl` and returns the value of `settings.Base` from `manifest.json` file.
@@ -31,6 +33,5 @@ testCourierPullReverse.prototype.getRequestUrl = function(){
     return url;
 };
 
-UTIL.inherits(testCourierPullReverse, CORE_ORDER_PULL_REVERSE);
 
 module.exports = testCourierPullReverse;

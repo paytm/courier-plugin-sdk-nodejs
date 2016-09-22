@@ -20,6 +20,8 @@ function testCourierPull () {
 
 }
 
+UTIL.inherits(testCourierPull, CORE_ORDER_PULL);
+
 testCourierPull.prototype.getRequestUrl = function(){
     /*
         This overrides `getRequestUrl` and returns the value of `settings.Base` from `manifest.json` file.
@@ -32,6 +34,5 @@ testCourierPull.prototype.getRequestUrl = function(){
     return url;
 };
 
-UTIL.inherits(testCourierPull, CORE_ORDER_PULL);
 
 module.exports = testCourierPull;

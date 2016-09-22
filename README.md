@@ -499,6 +499,34 @@ put-plugin-code-here-to-test
 ```
 
 * You cannot keep plguin code for more than 1 courier in a single file. Plugin for a courier should be isolated.
+* While creating a plugin, we expect that you will first inherit from the core plugin and then start ineriting functions. Assuming that you are writing plugin for pull, your sample `pull.js` should be something like
+
+```
+function testCourierPull () {
+
+    var self            = this;
+
+    // calling super class
+    CORE_ORDER_PULL.call(self);
+
+}
+
+// this line should be before you start overriding functions. 
+UTIL.inherits(testCourierPull, CORE_ORDER_PULL);
+
+// after inheriting start overriding functions.
+testCourierPull.prototype.getRequestUrl = function(){
+    /*
+        This overrides `getRequestUrl` and returns the value of `settings.Base` from `manifest.json` file.
+    */
+
+    var
+        self            = this ,
+        url             = _.get(self.getSettings(), 'settings.Base');
+
+    return url;
+};
+```
 
 
 
