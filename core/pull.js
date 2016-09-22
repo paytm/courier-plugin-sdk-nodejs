@@ -296,10 +296,10 @@ pullPlugin.prototype.parseHttpResponse = function(pullData, error, response, bod
     /*
         This function decides the flow depending upon the response status code
 
-        If response.statusCode is 200, it will call `markDelivered`
+        If response.statusCode is 200, it will call `updateStatus`
         Else it will call `failurePullFetch`
 
-        Calling `markDelivered` is just to give a complete skeleton to this
+        Calling `updateStatus` is just to give a complete skeleton to this
         function so that the whole flow can be tested.
     */
 
