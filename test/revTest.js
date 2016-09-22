@@ -9,9 +9,11 @@ var
     PLUGIN           = require('../put-plugin-code-here-to-test');
 
 
-describe('PullReverse', function() {
-    
-    it('Should call pullRevTrackDetails function and fetch tracking details', function(done){
+describe('reversePull', function() {
+
+    this.timeout(10000);
+
+    it('Should check reverse tracking flow', function(done){
 
         /* load settings in function we wish to use */
         var
@@ -49,7 +51,7 @@ describe('PullReverse', function() {
         PLUGIN.pullReverse.pullRevTrackDetails(dummyData);
 
     });
-       
+
 });
 
 

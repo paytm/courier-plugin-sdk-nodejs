@@ -10,8 +10,10 @@ var
 
 
 describe('Pull', function() {
+
+    this.timeout(10000);
     
-    it('Should call pullTrackDetails function and fetch tracking details', function(done){
+    it('Should check forward tracking flow', function(done){
 
         /* load settings in function we wish to use */
         var

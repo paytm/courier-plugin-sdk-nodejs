@@ -656,8 +656,10 @@ mocha test
 or to run a particular test pass that as an argument in grep like
 
 ```
-# for pull
-mocha test --grep="Pull"
+# for pull forward flow
+mocha test --grep="forward tracking"
+# for pull reverse flow
+mocha test --grep="reverse tracking"
 ```
 
 __Q.__ I need to pass sample awb provided by courier to check my complete flow. Where do I pass it?
