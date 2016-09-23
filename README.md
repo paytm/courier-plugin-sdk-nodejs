@@ -696,3 +696,54 @@ is an array of objects like
 ```
 
 To pass multiple awbs, create copies of this object in the array.
+
+__Q.__ I am still not clear of how to do dynamic header fetch thing. Can you elaborate more on that?
+
+__A.__ Consider that you are writing plugin for XYZ courier, which requries dynamic token fetching with a validity of 4 hours. In such scenarios, your initContext will look like
+
+```
+XYZ.prototype.initContext = function(callback){
+
+  var
+      self    = this,
+      reqOpts = 'create-req-opts-here-required-for-fetching-token';
+
+  // hit courier only if token is not present in contextObj
+
+  if( _.get(self.contextObj, 'myTokenKeyCanBeAnything', null) === null ){
+
+      REQUEST(reqOpts, function(error, response, body){
+
+          if(error || response.statusCode !== 200){
+            self.logger.log('Error in fetching token from XYZ courier');
+
+            // call the callback
+            return callback();
+
+          }
+
+          return callback();
+
+      });
+
+  }
+
+}
+```
+
+Also sample code that should be present in `parseHttpResponse` should look like
+
+
+```
+XYZ.prototype.parseHttpResponse = function (pullData, error, response, body) {
+
+  var self = this;
+
+  if (!error && response && response.statusCode === 403){
+      // set `my-token-key` to null, so that it is set in the next execution
+      self.contextObj.myTokenKeyCanBeAnything = null;
+  }
+
+}
+
+```
