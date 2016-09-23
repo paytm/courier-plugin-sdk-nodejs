@@ -38,6 +38,7 @@ console.log(this.getSettings());
 { pullFetchUrl: 'http://example.com' }
 ```
 
+* Also each plugin will have `contextObj` which will be used to store values pertaining to that plugin. Examples includes setting authorization header token valid for X hours, etc.
 * Function marked with `**` will be rarely overridden, like `pullTrackDetails**`
 * Functions marked with `*` will be mostly overridden.
 
@@ -148,34 +149,35 @@ This takes as its first argument a flag, which indicates whether the manifest wa
 
 # Track Shipment
 
-### Call Tree ( 21 functions )
+### Call Tree ( 22 functions )
 
 ```
 1. pullTrackDetails
-├─ 2. getHttpRequestOpts
-│  ├─ 3. getRequestUrl
-│  ├─ 4. getRequestMethod
-│  ├─ 5. getRequestTimeout
-│  ├─ 6. getRequestHeaders
-│  ├─ 7. getRequestBody
-│  ├─ 8. getRequestForm
-│  ├─ 9. getRequestJson
-│  ├─ 10. getRequestQueryString
-│  └─ 11. getPostHttpExtraOpts
+├─ 2. initContext
+│   └─ 3. getHttpRequestOpts
+│     ├─ 4. getRequestUrl
+│     ├─ 5. getRequestMethod
+│     ├─ 6. getRequestTimeout
+│     ├─ 7. getRequestHeaders
+│     ├─ 8. getRequestBody
+│     ├─ 9. getRequestForm
+│     ├─ 10. getRequestJson
+│     ├─ 11. getRequestQueryString
+│     └─ 12. getPostHttpExtraOpts
 │
-├─ 12. hitHttpApi
+├─ 13. hitHttpApi
 │
-└─ 13. parseHttpResponse
-   ├─ 14. failurePullFetch
-   │  └─ 21. trackingComplete
+└─ 14. parseHttpResponse
+   ├─ 15. failurePullFetch
+   │  └─ 22. trackingComplete
    │
-   └─ 15. updateStatus
-      ├─ 16. getAwbFromResponse
-      ├─ 17. getStatusCodeFromResponse
-      ├─ 18. getDateFromResponse
-      ├─ 19. getTimeFromResponse
-      ├─ 20. getDateFormat
-      └─ 21. trackingComplete
+   └─ 16. updateStatus
+      ├─ 17. getAwbFromResponse
+      ├─ 18. getStatusCodeFromResponse
+      ├─ 19. getDateFromResponse
+      ├─ 20. getTimeFromResponse
+      ├─ 21. getDateFormat
+      └─ 22. trackingComplete
 ```
 
 
@@ -187,44 +189,48 @@ This takes as its first argument a flag, which indicates whether the manifest wa
 This function will be the main entry point for pull plugin system. Logically it is the top most level
 function available. Rarely overridden, though overriding this would mean changing the complete flow.
 
-2) __getHttpRequestOpts(cb, pullData)__**:
+2) __initContext(callback)__*:
+
+This function is a place to do all the asynchronous task. Task like requesting dynamic headers from the courier can be easily done here. 
+
+3) __getHttpRequestOpts(cb, pullData)__**:
 
 This function will be the top level function for creating request data to initiate tracking from shipper. It will internally call micro level functions
 to get details for object like request method, url, headers, timeout and the most important thing request body. These micro functions can be overridden as and when required. This function expects a callback.
 
-3) __getRequestUrl()__*:
+4) __getRequestUrl()__*:
 
 This extracts `pullFetchUrl` key from `this.getSettings()` and returns the value of it. If you want to specify any other key like `myAwesomeKey`, override this function. Ideally overriding this function just for changing key name is not preferred.
 
-4) __getRequestMethod()__*:
+5) __getRequestMethod()__*:
 
 This extracts a key named `pullFetchRequestMethod` in `this.getSettings()` object. Default value is _GET_ if no such key is specified.
 
-5) __getRequestTimeout()__*:
+6) __getRequestTimeout()__*:
 
 This extracts a key named as `pullFetchRequestTimeout` in the `this.getSettings()` object. By default it returns a timeout of _75 seconds(75 * 1000)_.
 
-6) __getRequestHeaders()__*:
+7) __getRequestHeaders()__*:
 
 This expects a settings object with a key `pullFetchHeaders` and returns the value of it. To specify any other key just override this function
 
-7) __getRequestBody(pullData)__*:
+8) __getRequestBody(pullData)__*:
 
 This take as argument the complete pull data that is passed initially to the `pullTrackDetails()`. This is so because request body requires key value pair specific to shipper sometime, like `authKey`. It sets a key named `body` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
 
-8) __getRequestForm(pullData)__*:
+9) __getRequestForm(pullData)__*:
 
 This take as argument the complete pull data that is passed initially to the `pullTrackDetails()`. It sets a key named `form` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
 
-9) __getRequestJson(pullData)__*:
+10) __getRequestJson(pullData)__*:
 
 This take as argument the complete pull data that is passed initially to the `pullTrackDetails()`. It sets a key named `json` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
 
-10) __getRequestQueryString(pullData)__*:
+11) __getRequestQueryString(pullData)__*:
 
 This take as argument the complete pull data that is passed initially to the `pullTrackDetails()`. It sets a key named `qs` on the request options __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
 
-11) __getPostHttpExtraOpts()__*:
+12) __getPostHttpExtraOpts()__*:
 
 This function will be used when certain additional keys are required to be set on the reqOpts,
 For eg ::
@@ -237,11 +243,11 @@ For eg ::
 By default it will return null, meaning that no extra keys are required to be set on the reqOpts.
 Since it returns a object, `getHttpRequestOpts` will iterate over the keys of the returned object and for each key it will set a value in the main reqOpts.
 
-12) __hitHttpApi(pullData, reqOpts)__**:
+13) __hitHttpApi(pullData, reqOpts)__**:
 
 The only work that this function will do is hit the shipper at the requested url. It will be given a complete requestOpts. This function is not taking any callback, because of the same reasons for which `pullTrackDetails` is not taking any callback. After requesting with the shipper, it will call `parseHttpResponse` with pullData, error, response and body as the arguments.
 
-13) __parseHttpResponse(pullData, error, response, body)__*:
+14) __parseHttpResponse(pullData, error, response, body)__*:
 
 This is called when the request from shipper is completed. It will be the main function for deciding whether the response received is a success or failure one. The most basic approach to decide success and failure will be something on the lines of
 
@@ -256,35 +262,35 @@ NOTE::
  - The only thing that this function strictly enforces (design wise) is on __failure__(be it whatever condition), one should call `failurePullFetch` and on __success__ one should call `updateStatus`.
  - Also when `updateStatus` is called, we expect that it is called with the parsed body, which means it takes care of xml or json parsing. Hence parsing will be done in `parseHttpResponse` itself.
 
-14) __failurePullFetch(pullData, statusCode, error)__**:
+15) __failurePullFetch(pullData, statusCode, error)__**:
 
 It will be called from `parseHttpResponse` when there is failure. This function in turn calls `trackingComplete` with `trackingSuccessful` as _false_.
 
-15) __updateStatus(pullData, parsedResponse)__**:
+16) __updateStatus(pullData, parsedResponse)__**:
 
 It will be called from `parseHttpResponse` when there is success and status needs to be updated at our end.
 
-16) __getAwbFromResponse(shipment)__*:
+17) __getAwbFromResponse(shipment)__*:
 
 After the response is received from shipper, to extract details from it and take required actions, we need certain values. This will be extract __awb__ received from shipper.
 
-17) __getStatusCodeFromResponse(shipment)__*:
+18) __getStatusCodeFromResponse(shipment)__*:
 
 After the response is received from shipper, to extract details from it and take required actions, we need certain values. This will be extract __status__ of the shipment received from shipper.
 
-18) __getDateFromResponse(shipment)__*:
+19) __getDateFromResponse(shipment)__*:
 
 After the response is received from shipper, to extract details from it and take required actions, we need certain values. This will be extract __date__ received from shipper.
 
-19) __getTimeFromResponse(shipment)__*:
+20) __getTimeFromResponse(shipment)__*:
 
 After the response is received from shipper, to extract details from it and take required actions, we need certain values. This will be extract __time__ received from shipper.
 
-20) __getDateFormat(shipment)__*:
+21) __getDateFormat(shipment)__*:
 
 This extracts a key named `pullFetchDateTimeFormat` in `this.getSettings()` object. Default value is _DD-MM-YYYY HH:mm:ss_ if no such key is specified.
 
-21) __trackingComplete(trackingSuccessful, pullData, code, body)__**:
+22) __trackingComplete(trackingSuccessful, pullData, code, body)__**:
 
 This takes as its first argument a flag, which indicates whether the tracking details was successfully fetched or not.
 
@@ -292,31 +298,32 @@ To see how to override functions, see a sample in `plugin-skeleton-for-reference
 
 # Track Reverse Shipment
 
-### Call Tree ( 18 functions )
+### Call Tree ( 19 functions )
 
 ```
 1. pullRevTrackDetails
-├─ 2. getHttpRequestOpts
-│  ├─ 3. getRequestUrl
-│  ├─ 4. getRequestMethod
-│  ├─ 5. getRequestTimeout
-│  ├─ 6. getRequestHeaders
-│  ├─ 7. getRequestBody
-│  ├─ 8. getRequestForm
-│  ├─ 9. getRequestJson
-│  ├─ 10. getRequestQueryString
-│  └─ 11. getPostHttpExtraOpts
+├─ 2. initContext
+│   └─ 3. getHttpRequestOpts
+│       ├─ 4. getRequestUrl
+│       ├─ 5. getRequestMethod
+│       ├─ 6. getRequestTimeout
+│       ├─ 7. getRequestHeaders
+│       ├─ 8. getRequestBody
+│       ├─ 9. getRequestForm
+│       ├─ 10. getRequestJson
+│       ├─ 11. getRequestQueryString
+│       └─ 12. getPostHttpExtraOpts
 │
-├─ 12. hitHttpApi
+├─ 13. hitHttpApi
 │
-└─ 13. parseHttpResponse
-   ├─ 14. failurePullFetch
-   │  └─ 18. trackingComplete
+└─ 14. parseHttpResponse
+   ├─ 15. failurePullFetch
+   │  └─ 19. trackingComplete
    │
-   └─ 15. updateStatus
-      ├─ 16. getAwbFromResponse
-      ├─ 17. getStatusCodeFromResponse
-      └─ 18. trackingComplete
+   └─ 16. updateStatus
+      ├─ 17. getAwbFromResponse
+      ├─ 18. getStatusCodeFromResponse
+      └─ 19. trackingComplete
 ```
 
 ### Function signature
@@ -326,44 +333,48 @@ To see how to override functions, see a sample in `plugin-skeleton-for-reference
 This function will be the main entry point for pull plugin system. Logically it is the top most level
 function available. Rarely overridden, though overriding this would mean changing the complete flow.
 
-2) __getHttpRequestOpts(cb, pullRevData)__**:
+2) __initContext(callback)__*:
+
+This function is a place to do all the asynchronous task. Task like requesting dynamic headers from the courier can be easily done here. 
+
+3) __getHttpRequestOpts(cb, pullRevData)__**:
 
 This function will be the top level function for creating request data to initiate tracking from shipper. It will internally call micro level functions
 to get details for object like request method, url, headers, timeout and the most important thing request body. These micro functions can be overridden as and when required. This function expects a callback.
 
-3) __getRequestUrl()__*:
+4) __getRequestUrl()__*:
 
 This extracts `pullRevFetchUrl` key from `this.getSettings()` and returns the value of it. If you want to specify any other key like `myAwesomeKey`, override this function. Ideally overriding this function just for changing key name is not preferred.
 
-4) __getRequestMethod()__*:
+5) __getRequestMethod()__*:
 
 This extracts a key named `pullRevFetchRequestMethod` in `this.getSettings()` object. Default value is _GET_ if no such key is specified.
 
-5) __getRequestTimeout()__*:
+6) __getRequestTimeout()__*:
 
 This extracts a key named as `pullRevFetchRequestTimeout` in the `this.getSettings()` object. By default it returns a timeout of _75 seconds(75 * 1000)_.
 
-6) __getRequestHeaders()__*:
+7) __getRequestHeaders()__*:
 
 This expects a settings object with a key `pullRevFetchHeaders` and returns the value of it. To specify any other key just override this function
 
-7) __getRequestBody(pullRevData)__*:
+8) __getRequestBody(pullRevData)__*:
 
 This take as argument the complete pull data that is passed initially to the `pullRevTrackDetails()`. This is so because request body requires key value pair specific to shipper sometime, like `authKey`. It sets a key named `body` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
 
-8) __getRequestForm(pullRevData)__*:
+9) __getRequestForm(pullRevData)__*:
 
 This take as argument the complete pull data that is passed initially to the `pullRevTrackDetails()`. It sets a key named `form` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
 
-9) __getRequestJson(pullRevData)__*:
+10) __getRequestJson(pullRevData)__*:
 
 This take as argument the complete pull data that is passed initially to the `pullRevTrackDetails()`. It sets a key named `json` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
 
-10) __getRequestQueryString(pullRevData)__*:
+11) __getRequestQueryString(pullRevData)__*:
 
 This take as argument the complete pull data that is passed initially to the `pullRevTrackDetails()`. It sets a key named `qs` on the request options __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
 
-11) __getPostHttpExtraOpts()__*:
+12) __getPostHttpExtraOpts()__*:
 
 This function will be used when certain additional keys are required to be set on the reqOpts,
 For eg ::
@@ -376,11 +387,11 @@ For eg ::
 By default it will return null, meaning that no extra keys are required to be set on the reqOpts.
 Since it returns a object, `getHttpRequestOpts` will iterate over the keys of the returned object and for each key it will set a value in the main reqOpts.
 
-12) __hitHttpApi(pullRevData, reqOpts)__**:
+13) __hitHttpApi(pullRevData, reqOpts)__**:
 
 The only work that this function will do is hit the shipper at the requested url. It will be given a complete requestOpts. This function is not taking any callback, because of the same reasons for which `pullRevTrackDetails` is not taking any callback. After requesting with the shipper, it will call `parseHttpResponse` with pullRevData, error, response and body as the arguments.
 
-13) __parseHttpResponse(pullRevData, error, response, body)__*:
+14) __parseHttpResponse(pullRevData, error, response, body)__*:
 
 This is called when the request from shipper is completed. It will be the main function for deciding whether the response received is a success or failure one. The most basic approach to decide success and failure will be something on the lines of
 
@@ -395,23 +406,23 @@ NOTE::
  - The only thing that this function strictly enforces (design wise) is on __failure__(be it whatever condition), one should call `failurePullFetch` and on __success__ one should call `updateStatus`.
  - Also when `updateStatus` is called, we expect that it is called with the parsed body, which means it takes care of xml or json parsing. Hence parsing will be done in `parseHttpResponse` itself.
 
-14) __failurePullFetch(pullRevData, statusCode, error)__**:
+15) __failurePullFetch(pullRevData, statusCode, error)__**:
 
 It will be called from `parseHttpResponse` when there is failure. This function in turn calls `trackingComplete` with `trackingSuccessful` as _false_.
 
-15) __updateStatus(pullRevData, parsedResponse)__**:
+16) __updateStatus(pullRevData, parsedResponse)__**:
 
 It will be called from `parseHttpResponse` when there is success and status needs to be updated at our end.
 
-16) __getAwbFromResponse(shipment)__*:
+17) __getAwbFromResponse(shipment)__*:
 
 After the response is received from shipper, to extract details from it and take required actions, we need certain values. This will be extract __awb__ received from shipper.
 
-17) __getStatusCodeFromResponse(shipment)__*:
+18) __getStatusCodeFromResponse(shipment)__*:
 
 After the response is received from shipper, to extract details from it and take required actions, we need certain values. This will be extract __status__ of the shipment received from shipper.
 
-18) __trackingComplete(trackingSuccessful, pullRevData, code, body)__**:
+19) __trackingComplete(trackingSuccessful, pullRevData, code, body)__**:
 
 This takes as its first argument a flag, which indicates whether the tracking details was successfully fetched or not.
 
@@ -606,6 +617,17 @@ __A.__ In most of the cases, generally where some static headers are required, t
 __Q.__ Can I write long and verbose comments?
 
 __A.__ We like comments a lot. But comments should be only written explaining the reason why a particular code is written unless it is not used for the documentation purpose. Also dont copy the comments blindly from the `core` folder.
+
+__Q.__ I need to integrate a courier which requires me to fetch headers dynamically. These headers are valid for only a limited amount of time. What should I do?
+
+__A.__ This can be easily done by `initContext`and `contextObj`. Lets us make the example situation more clear and understand how we can do it. Consider that a courier requires headers to be generated at run time (by requesting at a particular url) and these headers are valid for a certain amount of time(say 4 hours). To do this `initContext` can be used. Override `initContext` and create request options there for getting headers from courier. Use `REQEUST` module, hit their http api and parse the response. Lets say you have got the token after parsing from the response. Now set this token in `contextObj` as whatever key you like, eg
+
+```
+_.set(self.contextObj, 'header-token', 'my-header-token-value-here')
+```
+
+Now the question comes, how to deal with token valid for 4 hours thing. This can be easily handled in `parseHttpResponse`. When the token becomes invalid, then response code will be __403__. A separate check for this can be included in `parseHttpResponse` where in if __403__ is received, then it can be set to _null_ in `contextObj`. A check can be included in `initContext` which will only request for token if it is not present in `contextObj`.
+
 
 __Q.__ I already have written the plugin for one Service. What to do if I want to write another service for the same courier?
 

@@ -464,10 +464,32 @@ pullPlugin.prototype.trackingComplete = function(trackingSuccessful, pullData, c
 };
 
 
+pullPlugin.prototype.initContext = function(callback){
+    /*
+        This function can be used to do any asynchronous task.
+
+        Eg: Need to fetch authorization token from a courier, which is valid for 1 hours.
+            Create http opts to be requested at the courier, get the response and set it in the
+            plugin context `contextObj`.
+    */
+
+    if (callback!==  undefined && typeof callback === 'function'){
+        callback();
+    }
+
+}
+
+
 pullPlugin.prototype.pullTrackDetails = function(pullData){
 
     var
         self    = this;
+
+    /*
+        Initially this used to directly call `getHttpRequestOpts`, but to incorpate
+        asynchronous taks into account, like generate headers valid for 1 hours, etc, `initContext`
+        is called, and then `getHttpRequestOpts` flow is passed as a callback
+    */
 
     /*
         Idea is to call only a single function `getHttpRequestOpts`
@@ -475,7 +497,7 @@ pullPlugin.prototype.pullTrackDetails = function(pullData){
         attributes on its own.
     */
 
-    self.getHttpRequestOpts(function(error, reqOpts){
+    self.initContext(self.getHttpRequestOpts(function(error, reqOpts){
 
         /*
             After the request options are successfully created,
@@ -485,7 +507,7 @@ pullPlugin.prototype.pullTrackDetails = function(pullData){
 
         self.hitHttpApi(pullData, reqOpts);
 
-    }, pullData);
+    }, pullData));
 
 };
 
