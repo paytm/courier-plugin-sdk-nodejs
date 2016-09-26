@@ -715,7 +715,10 @@ XYZ.prototype.initContext = function(callback){
       REQUEST(reqOpts, function(error, response, body){
 
           if(error || response.statusCode !== 200){
-            self.logger.log('Error in fetching token from XYZ courier');
+            self.logger.error('Error in fetching token from XYZ courier');
+
+            // parse the response here and set a key in contextObj
+            _.set(self.contextObj, 'myTokenKeyCanBeAnything', 'myTokenValue');
 
             // call the callback
             return callback();
@@ -746,4 +749,18 @@ XYZ.prototype.parseHttpResponse = function (pullData, error, response, body) {
 
 }
 
+```
+
+To access it in `getRequestHeaders` for example,
+
+```
+XYZ.prototype.getRequestHeaders = function () {
+
+  var
+      self        = this,
+      tokenValue  = null;
+
+  tokenValue = _.get(self.contextObj, 'myTokenKeyCanBeAnything');
+
+}
 ```
