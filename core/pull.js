@@ -477,7 +477,32 @@ pullPlugin.prototype.initContext = function(callback){
         callback();
     }
 
-}
+};
+
+pullPlugin.prototype.initiateTrackingWithShipper = function(pullData) {
+
+    var
+        self        = this;
+
+    /*
+        Idea is to call only a single function `getHttpRequestOpts`
+        This function will internally handle and create all the required
+        attributes on its own.
+    */
+
+    self.getHttpRequestOpts(function(error, reqOpts){
+
+        /*
+            After the request options are successfully created,
+            proceed to hit shipper to initiate cancel
+
+        */
+
+        self.hitHttpApi(pullData, reqOpts);
+
+    }, pullData);
+
+};
 
 
 pullPlugin.prototype.pullTrackDetails = function(pullData){
@@ -491,23 +516,7 @@ pullPlugin.prototype.pullTrackDetails = function(pullData){
         is called, and then `getHttpRequestOpts` flow is passed as a callback
     */
 
-    /*
-        Idea is to call only a single function `getHttpRequestOpts`
-        This function will internally handle and create all the required
-        attributes on its own.
-    */
-
-    self.initContext(self.getHttpRequestOpts(function(error, reqOpts){
-
-        /*
-            After the request options are successfully created,
-            proceed to hit shipper to initiate cancel
-
-        */
-
-        self.hitHttpApi(pullData, reqOpts);
-
-    }, pullData));
+    self.initContext(self.initiateTrackingWithShipper.bind(self, pullData));
 
 };
 
