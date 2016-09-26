@@ -27,12 +27,14 @@ describe('reversePull', function() {
             console.log("Error in reading/parsing manifest.json file ", error);
         }
 
-        PLUGIN.pull.getSettings = function() {
+        PLUGIN.pullReverse.getSettings = function() {
             return manifestFileData;
         };
 
+        PLUGIN.pullReverse.contextObj = {};
 
-        PLUGIN.pull.on('revTrackingComplete', function(trackingSuccessful, pullRevData, body){
+
+        PLUGIN.pullReverse.on('revTrackingComplete', function(trackingSuccessful, pullRevData, body){
             console.log('Reverse Tracking details fetched with flag :: ', trackingSuccessful);
             done();
 

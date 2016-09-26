@@ -31,6 +31,7 @@ describe('Pull', function() {
             return manifestFileData;
         };
 
+        PLUGIN.pull.contextObj = {};
 
         PLUGIN.pull.on('trackingComplete', function(trackingSuccessful, pullData, body){
             console.log('Tracking details fetched with flag :: ', trackingSuccessful);
