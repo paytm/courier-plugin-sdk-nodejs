@@ -2,6 +2,9 @@
 
 Nodejs SDK for Plugin development for Paytm Logistics Courier Service. This plugin can be used to test the plugin that courier needs to develop. The plugin will contain code required for dynamic AWB fetching, order cancellation, order maniphest, etc.
 
+### What is the idea behind plugin?
+Plugin is a nice plug and play type of feature to integrate with any Courier provider. A courier provides provides many services like manifest(order creation), tracking and cancellation. For each courier, we do a certain set of tasks which basically involves creating http options to be requested to the courier, parsing the reponse received from their end and then taking some actions on the basis of it. We abstracted this whole process in the form of `plugin`. A plugin can run in two form - either just by writing config for a courier(like url endpoint, request method) etc or by creating a plugin. Plugin is generally created for those cases, where the default flow(config dirven) is not able to run.
+
 ### Where is the sample plugin ?
 Sample plugin can be found at `plugin-skeleton-for-reference` folder.
 
@@ -817,6 +820,11 @@ or to run a particular test pass that as an argument in grep like
 mocha test --grep="forward tracking"
 # for pull reverse flow
 mocha test --grep="reverse tracking"
+
+# for forward order creation(manifest) flow
+mocha test --grep="forward order"
+# for reverse order creation(manifest) flow
+mocha test --grep="reverse order"
 ```
 
 __Q.__ I need to pass sample awb provided by courier to check my complete flow. Where do I pass it?
