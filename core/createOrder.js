@@ -101,7 +101,7 @@ orderCreationPlugin.prototype.getRequestBody = function(orderCreationData) {
         * Override this function only to set key `body` on reqOpts.
         * By default this function will return null
 
-        * Also `getRequestBody` and `getRequestForm` are mutually exclusive
+        * Also `getRequestBody`, `getRequestJson`, `getRequestQueryString` and `getRequestForm` are mutually exclusive
         * At a time only one of them will be overridden and hence one of them
           must return data.
 
@@ -117,7 +117,7 @@ orderCreationPlugin.prototype.getRequestForm = function(orderCreationData) {
         * Override this function only to set key `form` on reqOpts.
         * By default this function will return null
 
-        * Also `getRequestBody` and `getRequestForm` are mutually exclusive
+        * Also `getRequestBody`, `getRequestJson`, `getRequestQueryString` and `getRequestForm` are mutually exclusive
         * At a time only one of them will be overridden and hence one of them
           must return data.
 
@@ -126,6 +126,40 @@ orderCreationPlugin.prototype.getRequestForm = function(orderCreationData) {
     return null;
 
 };
+
+orderCreationPlugin.prototype.getRequestJson = function(orderCreationData) {
+
+    /*
+        * Override this function only to set key `json` on reqOpts.
+        * By default this function will return null
+
+        * Also `getRequestBody`, `getRequestJson`, `getRequestQueryString` and `getRequestForm` are mutually exclusive
+        * At a time only one of them will be overridden and hence one of them
+          must return data.
+
+    */
+
+    return null;
+
+};
+
+orderCreationPlugin.prototype.getRequestQueryString = function(orderCreationData) {
+
+    /*
+        * Override this function only to set key `json` on reqOpts.
+        * By default this function will return null
+
+        * Also `getRequestBody`, `getRequestJson`, `getRequestQueryString` and `getRequestForm` are mutually exclusive
+        * At a time only one of them will be overridden and hence one of them
+          must return data.
+
+    */
+
+    return null;
+
+};
+
+
 
 orderCreationPlugin.prototype.getPostHttpExtraOpts = function() {
 
@@ -164,6 +198,8 @@ orderCreationPlugin.prototype.getHttpRequestOpts = function (callback, orderCrea
         err             = null,
         headers         = null,
         reqBody         = null,
+        reqJsonData     = null,
+        reqQueryString  = null,
         reqFormData     = null,
         reqOpts         = {
             url             : self.getRequestUrl(),
@@ -192,6 +228,27 @@ orderCreationPlugin.prototype.getHttpRequestOpts = function (callback, orderCrea
     if (reqFormData) {
         reqOpts.form = reqFormData;
     }
+
+    /*
+        * Check if there is json for this request
+        * If yes, then set the key to reqOpts as `json`
+    */
+
+    reqJsonData = self.getRequestJson(orderCreationData);
+    if (reqJsonData) {
+        reqOpts.json = reqJsonData;
+    }
+
+    /*
+        * Check if there is qs for this request
+        * If yes, then set the key to reqOpts as `qs`
+    */
+
+    reqQueryString = self.getRequestQueryString(orderCreationData);
+    if (reqQueryString) {
+        reqOpts.qs = reqQueryString;
+    }
+
 
     /*
         check if there is header key
@@ -304,11 +361,26 @@ orderCreationPlugin.prototype.orderCreationOver = function(isOrderSuccessfullyCr
 };
 
 
-orderCreationPlugin.prototype.createOrderInit = function(orderCreationData){
+orderCreationPlugin.prototype.initContext = function(callback){
+    /*
+        This function can be used to do any asynchronous task.
+
+        Eg: Need to fetch authorization token from a courier, which is valid for 1 hours.
+            Create http opts to be requested at the courier, get the response and set it in the
+            plugin context `contextObj`.
+    */
+
+    if (callback!==  undefined && typeof callback === 'function'){
+        callback();
+    }
+
+};
+
+
+orderCreationPlugin.prototype.initiateOrderCreation = function(orderCreationData){
 
     var
-        self    = this;
-
+        self        = this;
 
     /*
         Idea is to call only a single function `getHttpRequestOpts`
@@ -320,13 +392,30 @@ orderCreationPlugin.prototype.createOrderInit = function(orderCreationData){
 
         /*
             After the request options are successfully created,
-            proceed to hit shipper
+            proceed to hit shipper to initiate cancel
 
         */
 
         self.hitHttpApi(orderCreationData, reqOpts);
 
     }, orderCreationData);
+
+};
+
+orderCreationPlugin.prototype.createOrderInit = function(orderCreationData){
+
+    var
+        self    = this;
+
+
+    /*
+        Initially this used to directly call `getHttpRequestOpts`, but to incorpate
+        asynchronous taks into account, like generate headers valid for 1 hours, etc, `initContext`
+        is called, and then `getHttpRequestOpts` flow is passed as a callback
+    */
+
+    self.initContext(self.initiateOrderCreation.bind(self, orderCreationData));
+
 
 };
 
