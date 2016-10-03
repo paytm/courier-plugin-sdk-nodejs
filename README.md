@@ -13,7 +13,7 @@ Detailed documentation can be found below in separate headings. The exposed func
  - Run `npm test --grep "manifest"`  . The SDK will test the plugin against its test cases
 
 ### where should I keep the settings for my Plugin?
-The settings can be kept in `manifest.json` file in `settings` key. The settings can also be specified in plugin manager gui on production system. The settings specified 
+The settings can be kept in `manifest.json` file in `settings` key. The settings can also be specified in plugin manager gui on production system. The settings specified
 
 ### Where to submit Queries/issues ?
 Issues related to courier operations/ plugin sdk must be submitted to Paytm's courier operations team/ techops team.
@@ -44,68 +44,83 @@ console.log(this.getSettings());
 
 # Order Creation
 
-### Call Tree ( 14 functions )
+### Call Tree ( 17 functions )
 
 ```
 1. createOrderInit
-├─ 2. getHttpRequestOpts
-│  ├─ 3. getRequestUrl
-│  ├─ 4. getRequestMethod
-│  ├─ 5. getRequestTimeout
-│  ├─ 6. getRequestBody
-│  ├─ 7. getRequestForm
-│  ├─ 8. getRequestHeaders
-│  └─ 9. getPostHttpExtraOpts
+├─ 2. initContext
+    └─ 3. getHttpRequestOpts
+│     ├─ 4. getRequestUrl
+│     ├─ 5. getRequestMethod
+│     ├─ 6. getRequestTimeout
+│     ├─ 7. getRequestHeaders
+│     ├─ 8. getRequestBody
+│     ├─ 9. getRequestForm
+│     ├─ 10. getRequestJson
+│     ├─ 11. getRequestQueryString
+│     └─ 12. getPostHttpExtraOpts
 │
-├─ 10. hitHttpApi
+├─ 13. hitHttpApi
 │
-└─ 11. parseHttpResponse
-   ├─ 12. failureOrderCreation
-   |  └─ 14. orderCreationOver
+└─ 14. parseHttpResponse
+   ├─ 15. failureOrderCreation
+   |  └─ 17. orderCreationOver
    |
-   └─ 13. successOrderCreation
-      └─ 14. orderCreationOver
+   └─ 16. successOrderCreation
+      └─ 17. orderCreationOver
 
 ```
 
 ### Function signature
 
-1) __createOrderInit(orderCreationData)__:
+1) __createOrderInit(orderCreationData)__**:
 
 This function will be the main entry point for plugin system. Logically it is the top most level
 function available, It can also be overridden(though overriding it would mean over riding the complete
-flow). This function will not accept any callback, because idea is to call this function just with the data and then as the order is created with the shipper, it will notify by itself. This work will be done by a function named `orderCreationOver`.
+flow).
 
-2) __getHttpRequestOpts(cb, orderCreationData)__
+2) __initContext(callback)__*:
 
-This function will be the top level function for creating request data. It will internally call subfunctions
-to get details for object like request method, url, headers, timeout and the most important thing request body. These subfunctions can be overriden as and when required. Also this function will take callback as sometimes, function like generating crypt or hash are required.
+This function is a place to do all the asynchronous task. Task like requesting dynamic headers from the courier can be easily done here.
 
-3) __getRequestUrl()__:
+3) __getHttpRequestOpts(cb, orderCreationData)__**:
 
-This extracts `createOrderUrl` key from `this.getSettings()` and returns the value of it. If you want to specify any other key like `baseURL + FWOrderURL`, override this function. 
+This function will be the top level function for creating request data. It will internally call micro level functions
+to get details for object like request method, url, headers, timeout and the most important thing request body. These micro functions can be overridden as and when required. Also this function will take callback as sometimes, function like generating crypt or hash are required.
 
-4) __getRequestMethod()__:
+4) __getRequestUrl()__*:
+
+This extracts `createOrderUrl` key from `this.getSettings()` and returns the value of it. If you want to specify any other key like `myAwesomeKey`, override this function. Ideally overriding this function just for changing key name is not preferred.
+
+5) __getRequestMethod()__*:
 
 This extracts a key named `createOrderRequestMethod` in `this.getSettings()` object. Default value is _POST_ if no such key is specified.
 
-5) __getRequestTimeout()__:
+6) __getRequestTimeout()__*:
 
 This extracts a key named as `createOrderRequestTimeout` in the `this.getSettings()` object. By default it returns a timeout of _30 seconds(30 * 1000)_.
 
-6) __getRequestBody(orderCreationData)__:
-
-This take as argument the complete manifest data that is passed initially to the createOrderInit(). This is so because request body requires key value pair specific to shipper sometime, like `authKey`. It sets a key named `body` on the request options. __getRequestBody__ and __getRequestForm__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
-
-7) __getRequestForm(orderCreationData)__:
-
-This take as argument the complete manifest data that is passed initially to the createOrderInit(). This is so because request body requires key value pair specific to shipper sometime, like `authKey`. It sets a key named `form` on the request options. __getRequestBody__ and __getRequestForm__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
-
-8) __getRequestHeaders()__:
+7) __getRequestHeaders()__*:
 
 This expects a settings object with a key `createOrderHeaders` and returns the value of it. To specify any other key just override this function
 
-9) __getPostHttpExtraOpts()__ :
+8) __getRequestBody(orderCreationData)__*:
+
+This take as argument the complete manifest data that is passed initially to the `createOrderInit()`. This is so because request body requires key value pair specific to shipper sometime, like `authKey`. It sets a key named `body` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
+
+9) __getRequestForm(orderCreationData)__*:
+
+This take as argument the complete manifest data that is passed initially to the `createOrderInit()`. This is so because request body requires key value pair specific to shipper sometime, like `authKey`. It sets a key named `form` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
+
+10) __getRequestJson(orderCreationData)__*:
+
+This take as argument the complete pull data that is passed initially to the `createOrderInit()`. It sets a key named `json` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
+
+11) __getRequestQueryString(orderCreationData)__*:
+
+This take as argument the complete pull data that is passed initially to the `createOrderInit()`. It sets a key named `qs` on the request options __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
+
+12) __getPostHttpExtraOpts()__*:
 
 This function will be used when certain additional keys are required to be set on the reqOpts,
 For eg ::
@@ -118,11 +133,11 @@ For eg ::
 By default it will return null, meaning that no extra keys are required to be set on the reqOpts.
 Since it returns a object, `getHttpRequestOpts` will iterate over the keys of the returned object and for each key it will set a value in the main reqOpts.
 
-10) __hitHttpApi(orderCreationData, reqOpts)__:
+13) __hitHttpApi(orderCreationData, reqOpts)__**:
 
 The only work that this function will do is hit the shipper at the requested url. It will be given a complete requestOpts. This function is not taking any callback, because of the same reasons for which `createOrderInit` is not taking any callback. After requesting with the shipper, it will call `parseHttpResponse` with error, response and body as the arguments.
 
-11) __parseHttpResponse(orderCreationData, error, response, body)__:
+14) __parseHttpResponse(orderCreationData, error, response, body)__*:
 
 This is called when the request from shipper is completed. It will be the main function for deciding whether the response received is a success or failure one. The most basic approach to decide success and failure will be something on the lines of
 
@@ -134,17 +149,17 @@ On success it calls `successOrderCreation` and for failure it calls `failureOrde
 
 This function will generally be __overridden__ by each shipper.
 
-12) __failureOrderCreation(orderCreationData, statusCode, error)__:
+15) __failureOrderCreation(orderCreationData, statusCode, error)__**:
 
-It will be called from `parseHttpResponse` when there is failure. This function in turn calls `manifestOver` with `isOrderSuccessfullyCreated` as false.
+It will be called from `parseHttpResponse` when there is failure. This function in turn calls `orderCreationOver` with `isOrderSuccessfullyCreated` as false.
 
-13) __successOrderCreation(orderCreationData, statusCode, body)__:
+16) __successOrderCreation(orderCreationData, statusCode, body)__**:
 
-It will be called from `parseHttpResponse` when there is success. This function in turn `manifestOver` with `isOrderSuccessfullyCreated` as true.
+It will be called from `parseHttpResponse` when there is success. This function in turn calls `orderCreationOver` with `isOrderSuccessfullyCreated` as true.
 
-14) __orderCreationOver(isOrderSuccessfullyCreated, orderCreationData, code, body)__:
+17) __orderCreationOver(isOrderSuccessfullyCreated, orderCreationData, code, body)__:
 
-This takes as its first argument a flag, which indicates whether the manifest was successfully created with the shipper or not.
+This takes as its first argument a flag, which indicates whether the manifest was successfully created with the courier or not.
 
 
 # Track Shipment
@@ -191,7 +206,7 @@ function available. Rarely overridden, though overriding this would mean changin
 
 2) __initContext(callback)__*:
 
-This function is a place to do all the asynchronous task. Task like requesting dynamic headers from the courier can be easily done here. 
+This function is a place to do all the asynchronous task. Task like requesting dynamic headers from the courier can be easily done here.
 
 3) __getHttpRequestOpts(cb, pullData)__**:
 
@@ -258,7 +273,7 @@ This is called when the request from shipper is completed. It will be the main f
 On success it calls `updateStatus`and for failure it calls `failurePullFetch`.
 
 NOTE::
- - We prefer that _every_ shipper should __override__ this function. This is because response will be different for each shipper and corresponding to it what action needs to be taken is basically controlled by this function. 
+ - We prefer that _every_ shipper should __override__ this function. This is because response will be different for each shipper and corresponding to it what action needs to be taken is basically controlled by this function.
  - The only thing that this function strictly enforces (design wise) is on __failure__(be it whatever condition), one should call `failurePullFetch` and on __success__ one should call `updateStatus`.
  - Also when `updateStatus` is called, we expect that it is called with the parsed body, which means it takes care of xml or json parsing. Hence parsing will be done in `parseHttpResponse` itself.
 
@@ -335,7 +350,7 @@ function available. Rarely overridden, though overriding this would mean changin
 
 2) __initContext(callback)__*:
 
-This function is a place to do all the asynchronous task. Task like requesting dynamic headers from the courier can be easily done here. 
+This function is a place to do all the asynchronous task. Task like requesting dynamic headers from the courier can be easily done here.
 
 3) __getHttpRequestOpts(cb, pullRevData)__**:
 
@@ -522,7 +537,7 @@ function testCourierPull () {
 
 }
 
-// this line should be before you start overriding functions. 
+// this line should be before you start overriding functions.
 UTIL.inherits(testCourierPull, CORE_ORDER_PULL);
 
 // after inheriting start overriding functions.
