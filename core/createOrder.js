@@ -289,7 +289,7 @@ orderCreationPlugin.prototype.hitHttpApi = function(orderCreationData, reqOpts) 
         self            = this;
 
     /* LOG what is being sent over network */
-    self.logger.log('Order create request sent with reqOpts', reqOpts);
+    self.logger.log('Order create request sent with reqOpts', JSON.stringify(reqOpts));
 
     REQUEST(reqOpts, self.parseHttpResponse.bind(self, orderCreationData));
 
@@ -309,7 +309,7 @@ orderCreationPlugin.prototype.parseHttpResponse = function(orderCreationData, er
 
     if( error || (!response) || ( response  && response.statusCode !== 200) ){
 
-        self.logger.log('Error in creating order at shipper for fulfillment data ', orderCreationData);
+        self.logger.log('Error in creating order at shipper for data ', orderCreationData);
         self.failureOrderCreation(orderCreationData, _.get(response, 'statusCode', null), error);
 
     }
@@ -356,7 +356,7 @@ orderCreationPlugin.prototype.orderCreationOver = function(isOrderSuccessfullyCr
         self.logger.log('Failure in creating order', body);
     }
 
-    self.emit('manifestOver', isOrderSuccessfullyCreated, orderCreationData, body);
+    self.emit('orderCreationComplete', isOrderSuccessfullyCreated, orderCreationData, body);
 
 };
 
