@@ -4,6 +4,7 @@
 var
     /* Project itself */
     C             = require('./createOrder.js'),
+    CR            = require('./createOrderReverse.js'),
     P             = require('./pull.js'),
     PR            = require('./pullReverse.js');
 
@@ -12,9 +13,10 @@ module.exports = {
 
     /* keep on adding objects of service here */
 
-    
+
     // always Create a new object for manifest or whatever service plugin is providing
-    createOrder : new C(),
-    pull        : new P(),
-    pullReverse : new PR()
+    createOrder             : new C(),
+    createOrderReverse      : new CR(),
+    pull                    : new P(),
+    pullReverse             : new PR()
 };

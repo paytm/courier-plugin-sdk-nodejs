@@ -3,7 +3,6 @@
 
 var
     /* Node Intenal */
-    REQUEST             = require('request'),
     UTIL                = require('util'),
 
     /* NPM Third Party */
@@ -30,9 +29,11 @@ testCourierManifest.prototype.getRequestUrl = function(){
     return url;
 };
 
-testCourierManifest.prototype.getRequestBody = function(manifestData){
-    var order           = 'format=json&data="data-here"'
+testCourierManifest.prototype.getRequestBody = function(revOrderCreationData){
+
+    var order           = 'format=json&data="data-here"';
     return order;
+
 };
 
-module.exports = testCourierManifest
+module.exports = testCourierManifest;
