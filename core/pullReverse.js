@@ -173,7 +173,7 @@ pullRevPlugin.prototype.getPostHttpExtraOpts = function() {
           to be set on the reqOpts.
 
         * Since it returns a object, `getHttpRequestOpts` will iterate over the keys
-          of the returned object and for each key it will set a value in the main 
+          of the returned object and for each key it will set a value in the main
           reqOpts.
     */
 
@@ -371,6 +371,8 @@ pullRevPlugin.prototype.updateStatus = function (pullRevData, parsedResponse) {
 
         self.logger.log('Awb : ' + awb + ', Status : ' + status );
     });
+
+    self.trackingComplete(true, pullRevData, 200, parsedResponse);
 };
 
 pullRevPlugin.prototype.getAwbFromResponse = function (shipment) {
