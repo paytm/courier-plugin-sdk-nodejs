@@ -6,7 +6,7 @@ var
 
     JSONMINIFY       = require('jsonminify'),
 
-    PLUGIN           = require('../put-plugin-code-here-to-test');
+    PLUGIN           = require('../plugin/put-plugin-code-here-to-test');
 
 
 describe('forwardOrder', function() {
@@ -18,7 +18,7 @@ describe('forwardOrder', function() {
         /* load settings in function we wish to use */
         var
             dummyData        = null,
-            manifestFilePath = __dirname + '/../put-plugin-code-here-to-test/manifest.json',
+            manifestFilePath = __dirname + '/../plugin/put-plugin-code-here-to-test/manifest.json',
             manifestFileData = null;
 
         try {

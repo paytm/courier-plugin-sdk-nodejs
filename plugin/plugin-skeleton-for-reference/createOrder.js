@@ -8,7 +8,7 @@ var
     /* NPM Third Party */
     _                   = require('lodash'),
 
-    CORE_ORDER_CREATION = require('../core/index.js').createOrder;
+    CORE_ORDER_CREATION = require('../../core/index.js').createOrder;
 
 function testCourierManifest () {
 

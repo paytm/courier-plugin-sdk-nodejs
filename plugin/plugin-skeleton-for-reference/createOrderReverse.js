@@ -9,7 +9,7 @@ var
     /* NPM Third Party */
     _                               = require('lodash'),
 
-    CORE_REV_ORDER_CREATION         = require('../core/index.js').createOrderReverse;
+    CORE_REV_ORDER_CREATION         = require('../../core/index.js').createOrderReverse;
 
 function testRevCourierManifest () {
 

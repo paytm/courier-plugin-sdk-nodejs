@@ -6,19 +6,19 @@ var
 
     JSONMINIFY       = require('jsonminify'),
 
-    PLUGIN           = require('../put-plugin-code-here-to-test');
+    PLUGIN           = require('../plugin/put-plugin-code-here-to-test');
 
 
 describe('Pull', function() {
 
     this.timeout(10000);
-    
+
     it('Should check forward tracking flow', function(done){
 
         /* load settings in function we wish to use */
         var
             dummyData        = null,
-            manifestFilePath = __dirname + '/../put-plugin-code-here-to-test/manifest.json',
+            manifestFilePath = __dirname + '/../plugin/put-plugin-code-here-to-test/manifest.json',
             manifestFileData = null;
 
         try {
@@ -52,7 +52,7 @@ describe('Pull', function() {
         PLUGIN.pull.pullTrackDetails(dummyData);
 
     });
-       
+
 });
 
 

@@ -3,26 +3,25 @@
 
 var
     /* Node Intenal */
-    REQUEST             = require('request'),
-    UTIL                = require('util'),
+    UTIL                        = require('util'),
 
     /* NPM Third Party */
-    _                   = require('lodash'),
+    _                           = require('lodash'),
 
-    CORE_ORDER_PULL = require('../core/index.js').pull;
+    CORE_ORDER_PULL_REVERSE     = require('../../core/index.js').pullReverse;
 
-function testCourierPull () {
+function testCourierPullReverse () {
 
     var self            = this;
 
     // calling super class
-    CORE_ORDER_PULL.call(self);
+    CORE_ORDER_PULL_REVERSE.call(self);
 
 }
 
-UTIL.inherits(testCourierPull, CORE_ORDER_PULL);
+UTIL.inherits(testCourierPullReverse, CORE_ORDER_PULL_REVERSE);
 
-testCourierPull.prototype.getRequestUrl = function(){
+testCourierPullReverse.prototype.getRequestUrl = function(){
     /*
         This overrides `getRequestUrl` and returns the value of `settings.Base` from `manifest.json` file.
     */
@@ -35,4 +34,4 @@ testCourierPull.prototype.getRequestUrl = function(){
 };
 
 
-module.exports = testCourierPull;
+module.exports = testCourierPullReverse;
