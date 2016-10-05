@@ -309,14 +309,12 @@ orderCreationPlugin.prototype.parseHttpResponse = function(orderCreationData, er
 
     if( error || (!response) || ( response  && response.statusCode !== 200) ){
 
-        self.logger.log('Error in creating order at shipper for data ', orderCreationData);
         self.failureOrderCreation(orderCreationData, _.get(response, 'statusCode', null), error);
 
     }
 
     if ( !error && response.statusCode === 200 ) {
 
-        self.logger.log('Order Creation successful for ', orderCreationData);
         self.successOrderCreation(orderCreationData, response.statusCode, body);
 
     }
@@ -353,7 +351,7 @@ orderCreationPlugin.prototype.orderCreationOver = function(isOrderSuccessfullyCr
     if( isOrderSuccessfullyCreated === true ) {
         self.logger.log('Success in creating order', body);
     } else {
-        self.logger.log('Failure in creating order', body);
+        self.logger.error('Failure in creating order for data ', JSON.stringify(orderCreationData), ', Error is ' +  body + ', Status code is', code);
     }
 
     self.emit('orderCreationComplete', isOrderSuccessfullyCreated, orderCreationData, body);

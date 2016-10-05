@@ -172,7 +172,7 @@ pullPlugin.prototype.getPostHttpExtraOpts = function() {
           to be set on the reqOpts.
 
         * Since it returns a object, `getHttpRequestOpts` will iterate over the keys
-          of the returned object and for each key it will set a value in the main 
+          of the returned object and for each key it will set a value in the main
           reqOpts.
     */
 
@@ -309,18 +309,14 @@ pullPlugin.prototype.parseHttpResponse = function(pullData, error, response, bod
 
     if( error || (!response) || (response && response.statusCode !== 200) ){
 
-        self.logger.log('Error in fetching tracking data at shipper for ', pullData);
         self.failurePullFetch(pullData, _.get(response, 'statusCode', null), error);
     }
 
     if ( !error && response.statusCode === 200 ) {
 
-        self.logger.log('Success in fetching tracking details for ', pullData);
-
         /*
             Here response body should be parsed depending upon the format
         */
-
         self.updateStatus(pullData, body);
     }
 
@@ -456,7 +452,7 @@ pullPlugin.prototype.trackingComplete = function(trackingSuccessful, pullData, c
     if( trackingSuccessful === true ) {
         self.logger.log('Tracking details successfully fetched', body);
     } else {
-        self.logger.log('Failure in in fetching tracking details', body);
+        self.logger.error('Failure in fetching tracking details for tracking data ', JSON.stringify(pullData), ', Error is ' +  body + ', Status code is', code);
     }
 
     self.emit('trackingComplete', trackingSuccessful, pullData, body);

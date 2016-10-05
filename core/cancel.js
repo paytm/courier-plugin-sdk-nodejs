@@ -101,7 +101,7 @@ cancelPlugin.prototype.getRequestBody = function(cancelData) {
         * Override this function only to set key `body` on reqOpts.
         * By default this function will return null
 
-        * Also `getRequestBody`, `getRequestForm` and `getRequestJson` are mutually 
+        * Also `getRequestBody`, `getRequestForm` and `getRequestJson` are mutually
           exclusive. At a time only one of them will be overridden and hence one of them
           must return data.
 
@@ -117,7 +117,7 @@ cancelPlugin.prototype.getRequestForm = function(cancelData) {
         * Override this function only to set key `form` on reqOpts.
         * By default this function will return null
 
-        * Also `getRequestBody`, `getRequestForm` and `getRequestJson` are mutually 
+        * Also `getRequestBody`, `getRequestForm` and `getRequestJson` are mutually
           exclusive. At a time only one of them will be overridden and hence one of them
           must return data.
 
@@ -133,7 +133,7 @@ cancelPlugin.prototype.getRequestJson = function(cancelData) {
         * Override this function only to set key `json` on reqOpts.
         * By default this function will return null
 
-        * Also `getRequestBody`, `getRequestForm` and `getRequestJson` are mutually 
+        * Also `getRequestBody`, `getRequestForm` and `getRequestJson` are mutually
           exclusive. At a time only one of them will be overridden and hence one of them
           must return data.
 
@@ -157,7 +157,7 @@ cancelPlugin.prototype.getPostHttpExtraOpts = function() {
           to be set on the reqOpts.
 
         * Since it returns a object, `getHttpRequestOpts` will iterate over the keys
-          of the returned object and for each key it will set a value in the main 
+          of the returned object and for each key it will set a value in the main
           reqOpts.
     */
 
@@ -278,12 +278,10 @@ cancelPlugin.prototype.parseHttpResponse = function(cancelData, error, response,
         self        = this;
 
     if( error || (!response) || (response && response.statusCode !== 200) ){
-        self.logger.log('Error in cancelling order at shipper for fulfillment data ', cancelData);
         self.failureNotifyCancel(cancelData, response.statusCode, error);
     }
 
     if ( !error && response.statusCode === 200 ) {
-        self.logger.log('Cancel order successful for ', cancelData);
         self.successNotifyCancel(cancelData, response.statusCode, body);
     }
 
@@ -318,7 +316,7 @@ cancelPlugin.prototype.cancelNotificationOver = function(isCancelSuccessfullyNot
     if( isCancelSuccessfullyNotified === true ) {
         self.logger.log('Cancel successfully notified', body);
     } else {
-        self.logger.log('Cancel notification failed', body);
+        self.logger.error('Cancel notification failed for data ', JSON.stringify(cancelData), ', Error is ' +  body + ', Status code is', code);
     }
 
     self.emit('cancelNotified', isCancelSuccessfullyNotified, cancelData, body);

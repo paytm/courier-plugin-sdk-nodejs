@@ -312,13 +312,10 @@ pullRevPlugin.prototype.parseHttpResponse = function(pullRevData, error, respons
 
     if( error || (!response) || (response && response.statusCode !== 200) ){
 
-        self.logger.log('Error in fetching tracking data reverse flow at shipper for ' + JSON.stringify(pullRevData) + ', Error ' + error);
         self.failurePullFetch(pullRevData, _.get(response, 'statusCode', null), error);
     }
 
     if ( !error && response.statusCode === 200 ) {
-
-        self.logger.log('Success in fetching tracking details for reverse flow with ', pullRevData);
 
         /*
             Here response body should be parsed depending upon the format
@@ -407,7 +404,7 @@ pullRevPlugin.prototype.trackingComplete = function(trackingSuccessful, pullRevD
     if( trackingSuccessful === true ) {
         self.logger.log('Tracking details for reverse flow successfully fetched' + body);
     } else {
-        self.logger.log('Failure in fetching tracking details for reverse' + body);
+        self.logger.error('Failure in fetching reverse flow tracking for tracking data ', JSON.stringify(pullRevData), ', Error is ' +  body + ', Status code is', code);
     }
 
     self.emit('revTrackingComplete', trackingSuccessful, pullRevData, body);

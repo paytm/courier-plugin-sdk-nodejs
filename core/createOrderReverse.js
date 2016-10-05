@@ -309,14 +309,12 @@ revOrderCreationPlugin.prototype.parseHttpResponse = function(revOrderCreationDa
 
     if( error || (!response) || ( response  && response.statusCode !== 200) ){
 
-        self.logger.log('Error in creating reverse order at courier for data ', revOrderCreationData);
         self.failureOrderCreation(revOrderCreationData, _.get(response, 'statusCode', null), error);
 
     }
 
     if ( !error && response.statusCode === 200 ) {
 
-        self.logger.log('Reverse Order Creation successful for ', revOrderCreationData);
         self.successOrderCreation(revOrderCreationData, response.statusCode, body);
 
     }
@@ -353,7 +351,7 @@ revOrderCreationPlugin.prototype.orderCreationOver = function(isOrderSuccessfull
     if( isOrderSuccessfullyCreated === true ) {
         self.logger.log('Success in creating reverse order', body);
     } else {
-        self.logger.log('Failure in creating reverse order', body);
+        self.logger.error('Failure in creating reverse order for data ', JSON.stringify(revOrderCreationData), ', Error is ' +  body + ', Status code is', code);
     }
 
     self.emit('revOrderCreationComplete', isOrderSuccessfullyCreated, revOrderCreationData, body);
