@@ -289,7 +289,7 @@ pullRevPlugin.prototype.hitHttpApi = function(pullRevData, reqOpts) {
 
     self.logger.log('Tracking data reverse flow request sent with reqOpts ' + JSON.stringify(reqOpts));
 
-    REQUEST(reqOpts, self._parseRawHttpResponse.bind(self, pullRevData, reqOpts));
+    REQUEST(reqOpts, self.parseHttpResponse.bind(self, pullRevData, reqOpts));
 
 };
 

@@ -326,7 +326,7 @@ orderCreationPlugin.prototype.failureOrderCreation = function(orderCreationData,
 
     var self = this;
 
-    self.orderCreationOver(false, orderCreationData, statusCode, error.message);
+    self.orderCreationOver(false, orderCreationData, statusCode, _.get(error, 'message'));
 
 };
 
