@@ -907,3 +907,94 @@ XYZ.prototype.getRequestHeaders = function () {
 
 }
 ```
+
+__Q.__ I am not clear on how to use lodash. Can you elaborate with an example?
+
+__A.__ We generally use lodash for key-value pair extraction from a certain obj. For eg, Consider an object like
+
+```
+var myObj = {
+    myKey1 : 'myValue'
+}
+
+# extract value via lodash
+# as a good practice we specify default value when key is not available
+var myVal1 = _.get(myObj, 'myKey1', null);
+
+var myAnotherObj = {
+    myKey1 : {
+        myKey2 : {
+            myKey3 : 'myValue'
+        }
+    }
+}
+
+var myVal2 = _.get(myAnotherObj, ['myKey1', 'myKey2', 'myKey3'], null)
+
+# to set key b.c to object a,
+
+_.set(a, ['b', 'c'], 'myKeyVal');
+
+```
+
+
+__Q.__ How do I log error message?
+
+__A.__ Assuming that self is assigned in a function, use `self.logger.error`. Eg
+
+```
+self.logger.error('Error in extracting data')
+```
+
+### CheckList before submitting a plugin
+
+This is a master list for any type of plugin. Person uploading a plugin should make sure that the following points are met.
+
+* Make sure that all the files are at the same level, plugin structure should like
+
+```
+# NOT THIS, BAD NOT ENCOURAGED
+
+└── myPlugin
+    ├── createOrder.js
+    ├── createOrderReverse.js
+    ├── index.js
+    ├── manifest.json
+    ├── pull.js
+    └── pullReverse.js
+
+# GOOD PRACTICE
+
+    ├── createOrder.js
+    ├── createOrderReverse.js
+    ├── index.js
+    ├── manifest.json
+    ├── pull.js
+    └── pullReverse.js
+```
+
+* Make sure that you have used __lodash__ to extract key value pairs
+
+* Conditions in if or while block should check explicitly against values. Eg, to check for a variable if it is null,
+
+```
+
+    // A VERY BAD PRACTICE.
+    // NOT AT ALL ENCOURAGED
+    if(!myVar){
+        // do some action here
+    }
+
+
+    // GOOD PRACTICE, MUST USE THIS ONLY
+    if(myVar === null){
+        // do some stuff here
+    }
+
+
+```
+
+* Run jshint on all files, before submitting any plugin.
+
+*
+
