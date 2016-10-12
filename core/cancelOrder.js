@@ -20,7 +20,7 @@ function cancelPlugin() {
 
     B.call(self);
 
-};
+}
 
 UTIL.inherits(cancelPlugin, B);
 
@@ -143,6 +143,22 @@ cancelPlugin.prototype.getRequestJson = function(cancelData) {
 
 };
 
+cancelPlugin.prototype.getRequestQueryString = function(cancelData) {
+
+    /*
+        * Override this function only to set key `qs` on reqOpts.
+        * By default this function will return null
+
+        * Also `getRequestBody`, `getRequestForm`, `getRequestJson` and `getRequestQueryString`
+          are mutually exclusive. At a time only one of them will be overridden and hence one of them
+          must return data.
+
+    */
+
+    return null;
+
+};
+
 cancelPlugin.prototype.getPostHttpExtraOpts = function() {
 
     /*
@@ -182,6 +198,7 @@ cancelPlugin.prototype.getHttpRequestOpts = function (callback, cancelData) {
         reqBody         = null,
         reqFormData     = null,
         reqJsonData     = null,
+        reqQueryString  = null,
         reqOpts         = {
             url             : self.getRequestUrl(),
             method          : self.getRequestMethod(),
@@ -218,6 +235,16 @@ cancelPlugin.prototype.getHttpRequestOpts = function (callback, cancelData) {
     reqJsonData = self.getRequestJson(cancelData);
     if (reqJsonData) {
         reqOpts.json = reqJsonData;
+    }
+
+    /*
+        * Check if there is qs for this request
+        * If yes, then set the key to reqOpts as `qs`
+    */
+
+    reqQueryString = self.getRequestQueryString(cancelData);
+    if (reqQueryString) {
+        reqOpts.qs = reqQueryString;
     }
 
     /*
@@ -278,7 +305,7 @@ cancelPlugin.prototype.parseHttpResponse = function(cancelData, error, response,
         self        = this;
 
     if( error || (!response) || (response && response.statusCode !== 200) ){
-        self.failureNotifyCancel(cancelData, response.statusCode, error);
+        self.failureNotifyCancel(cancelData, _.get(response, 'statusCode', null), error);
     }
 
     if ( !error && response.statusCode === 200 ) {
@@ -292,7 +319,7 @@ cancelPlugin.prototype.failureNotifyCancel = function(cancelData, statusCode, er
 
     var self = this;
 
-    self.cancelNotificationOver(false, cancelData, statusCode, error.message);
+    self.cancelNotificationOver(false, cancelData, statusCode, _.get(error, 'message', null));
 
 };
 
@@ -312,6 +339,8 @@ cancelPlugin.prototype.cancelNotificationOver = function(isCancelSuccessfullyNot
         This will be the last function called.
     */
 
+   var self = this;
+
 
     if( isCancelSuccessfullyNotified === true ) {
         self.logger.log('Cancel successfully notified', body);
@@ -323,11 +352,25 @@ cancelPlugin.prototype.cancelNotificationOver = function(isCancelSuccessfullyNot
 
 };
 
+cancelPlugin.prototype.initContext = function(callback){
+    /*
+        This function can be used to do any asynchronous task.
 
-cancelPlugin.prototype.notifyCancel = function(cancelData){
+        Eg: Need to fetch authorization token from a courier, which is valid for 1 hours.
+            Create http opts to be requested at the courier, get the response and set it in the
+            plugin context `contextObj`.
+    */
+
+    if (callback!==  undefined && typeof callback === 'function'){
+        callback();
+    }
+
+};
+
+cancelPlugin.prototype.initiateCancellation = function(cancelData) {
 
     var
-        self    = this;
+        self        = this;
 
     /*
         Idea is to call only a single function `getHttpRequestOpts`
@@ -346,6 +389,23 @@ cancelPlugin.prototype.notifyCancel = function(cancelData){
         self.hitHttpApi(cancelData, reqOpts);
 
     }, cancelData);
+
+};
+
+
+cancelPlugin.prototype.notifyCancel = function(cancelData){
+
+    var
+        self    = this;
+
+    /*
+        Initially this used to directly call `getHttpRequestOpts`, but to incorpate
+        asynchronous taks into account, like generate headers valid for 1 hours, etc, `initContext`
+        is called, and then `getHttpRequestOpts` flow is passed as a callback
+    */
+
+    self.initContext(self.initiateCancellation.bind(self, cancelData));
+
 
 };
 

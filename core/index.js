@@ -2,7 +2,7 @@
 "use strict";
 
 module.exports = {
-    cancel                  : require('./cancel.js'),
+    cancelOrder             : require('./cancelOrder.js'),
     createOrder             : require('./createOrder.js'),
     createOrderReverse      : require('./createOrderReverse.js'),
     pull                    : require('./pull.js'),
