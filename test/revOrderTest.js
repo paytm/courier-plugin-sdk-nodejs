@@ -5,6 +5,7 @@ var
     FS               = require('fs'),
 
     JSONMINIFY       = require('jsonminify'),
+    SHOULD           = require('should'),
 
     PLUGIN           = require('../plugin/put-plugin-code-here-to-test');
 
@@ -35,6 +36,7 @@ describe('reverseOrder', function() {
 
         PLUGIN.createOrderReverse.on('revOrderCreationComplete', function(isOrderSuccessfullyCreated, orderCreationData, body){
             console.log('Reverse Order Creation complete with flag :: ', isOrderSuccessfullyCreated);
+            SHOULD(isOrderSuccessfullyCreated).be.equal(true);
             done();
 
         });

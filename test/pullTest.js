@@ -5,6 +5,7 @@ var
     FS               = require('fs'),
 
     JSONMINIFY       = require('jsonminify'),
+    SHOULD           = require('should'),
 
     PLUGIN           = require('../plugin/put-plugin-code-here-to-test');
 
@@ -35,6 +36,7 @@ describe('Pull', function() {
 
         PLUGIN.pull.on('trackingComplete', function(trackingSuccessful, pullData, body){
             console.log('Tracking details fetched with flag :: ', trackingSuccessful);
+            SHOULD(trackingSuccessful).be.equal(true);
             done();
 
         });

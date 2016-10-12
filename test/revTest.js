@@ -5,6 +5,7 @@ var
     FS               = require('fs'),
 
     JSONMINIFY       = require('jsonminify'),
+    SHOULD           = require('should'),
 
     PLUGIN           = require('../plugin/put-plugin-code-here-to-test');
 
@@ -36,6 +37,7 @@ describe('reversePull', function() {
 
         PLUGIN.pullReverse.on('revTrackingComplete', function(trackingSuccessful, pullRevData, body){
             console.log('Reverse Tracking details fetched with flag :: ', trackingSuccessful);
+            SHOULD(trackingSuccessful).be.equal(true);
             done();
 
         });

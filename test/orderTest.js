@@ -5,6 +5,7 @@ var
     FS               = require('fs'),
 
     JSONMINIFY       = require('jsonminify'),
+    SHOULD           = require('should'),
 
     PLUGIN           = require('../plugin/put-plugin-code-here-to-test');
 
@@ -34,7 +35,8 @@ describe('forwardOrder', function() {
         PLUGIN.createOrder.contextObj = {};
 
         PLUGIN.createOrder.on('orderCreationComplete', function(isOrderSuccessfullyCreated, orderCreationData, body){
-            console.log('Order Creation complete with flag :: ', isOrderSuccessfullyCreated);
+            console.log('Order Creation complete with flag :: ', isOrderSuccessfullyCreated, 'body :: ', body);
+            SHOULD(isOrderSuccessfullyCreated).be.equal(true);
             done();
 
         });
@@ -43,13 +45,11 @@ describe('forwardOrder', function() {
             Insert tracking_number here for which you want to check. You can create multiple objects.
         */
 
-        dummyData = [
-            {
+        dummyData = {
                 tracking_number: ''
-            }
-        ];
+        };
 
-        PLUGIN.createOrder.pullTrackDetails(dummyData);
+        PLUGIN.createOrder.createOrderInit(dummyData);
 
     });
 
