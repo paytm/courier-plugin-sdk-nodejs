@@ -566,6 +566,127 @@ This takes as its first argument a flag, which indicates whether the tracking de
 
 To see how to override functions, see a sample in `plugin-skeleton-for-reference/pullReverse.js`.
 
+
+# Order Cancellation
+
+### Call Tree ( 17 functions )
+
+```
+1. notifyCancel
+├─ 2. initContext
+    └─ 3. getHttpRequestOpts
+│     ├─ 4. getRequestUrl
+│     ├─ 5. getRequestMethod
+│     ├─ 6. getRequestTimeout
+│     ├─ 7. getRequestHeaders
+│     ├─ 8. getRequestBody
+│     ├─ 9. getRequestForm
+│     ├─ 10. getRequestJson
+│     ├─ 11. getRequestQueryString
+│     └─ 12. getPostHttpExtraOpts
+│
+├─ 13. hitHttpApi
+│
+└─ 14. parseHttpResponse
+   ├─ 15. failureNotifyCancel
+   |  └─ 17. cancelNotificationOver
+   |
+   └─ 16. successNotifyCancel
+      └─ 17. cancelNotificationOver
+
+```
+
+### Function signature
+
+1) __notifyCancel(cancelData)__**:
+
+This function will be the main entry point for plugin system. Logically it is the top most level
+function available, It can also be overridden(though overriding it would mean over riding the complete
+flow).
+
+2) __initContext(callback)__*:
+
+This function is a place to do all the asynchronous task. Task like requesting dynamic headers from the courier can be easily done here.
+
+3) __getHttpRequestOpts(cb, cancelData)__**:
+
+This function will be the top level function for creating request data. It will internally call micro level functions
+to get details for object like request method, url, headers, timeout and the most important thing request body. These micro functions can be overridden as and when required. Also this function will take callback as sometimes, function like generating crypt or hash are required.
+
+4) __getRequestUrl()__*:
+
+This extracts `cancelNotifyUrl` key from `this.getSettings()` and returns the value of it. If you want to specify any other key like `myAwesomeKey`, override this function. Ideally overriding this function just for changing key name is not preferred.
+
+5) __getRequestMethod()__*:
+
+This extracts a key named `cancelNotifyRequestMethod` in `this.getSettings()` object. Default value is _POST_ if no such key is specified.
+
+6) __getRequestTimeout()__*:
+
+This extracts a key named as `cancelNotifyRequestTimeout` in the `this.getSettings()` object. By default it returns a timeout of _30 seconds(30 * 1000)_.
+
+7) __getRequestHeaders()__*:
+
+This expects a settings object with a key `cancelNotifyHeaders` and returns the value of it. To specify any other key just override this function
+
+8) __getRequestBody(cancelData)__*:
+
+This take as argument the complete manifest data that is passed initially to the `notifyCancel()`. This is so because request body requires key value pair specific to shipper sometime, like `authKey`. It sets a key named `body` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
+
+9) __getRequestForm(cancelData)__*:
+
+This take as argument the complete manifest data that is passed initially to the `notifyCancel()`. This is so because request body requires key value pair specific to shipper sometime, like `authKey`. It sets a key named `form` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
+
+10) __getRequestJson(cancelData)__*:
+
+This take as argument the complete pull data that is passed initially to the `notifyCancel()`. It sets a key named `json` on the request options. __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
+
+11) __getRequestQueryString(cancelData)__*:
+
+This take as argument the complete pull data that is passed initially to the `notifyCancel()`. It sets a key named `qs` on the request options __getRequestBody__, __getRequestForm__, __getRequestJson__ and __getRequestQueryString__ are mutually exclusive. At a time, only one of them can be overridden. By default it returns _null_.
+
+12) __getPostHttpExtraOpts()__*:
+
+This function will be used when certain additional keys are required to be set on the reqOpts,
+For eg ::
+
+```
+    {
+        json: true
+    }
+```
+By default it will return null, meaning that no extra keys are required to be set on the reqOpts.
+Since it returns a object, `getHttpRequestOpts` will iterate over the keys of the returned object and for each key it will set a value in the main reqOpts.
+
+13) __hitHttpApi(cancelData, reqOpts)__**:
+
+The only work that this function will do is hit the shipper at the requested url. It will be given a complete requestOpts. This function is not taking any callback, because of the same reasons for which `notifyCancel` is not taking any callback. After requesting with the shipper, it will call `parseHttpResponse` with error, response and body as the arguments.
+
+14) __parseHttpResponse(cancelData, error, response, body)__*:
+
+This is called when the request from shipper is completed. It will be the main function for deciding whether the response received is a success or failure one. The most basic approach to decide success and failure will be something on the lines of
+
+* response code is __200__ and there is no error, signifies that is __SUCCESS__. It is then purely subjective on us to decide whether it is success or failure
+
+* Everything else will go in Error case.
+
+On success it calls `successNotifyCancel` and for failure it calls `failureNotifyCancel`.
+
+This function will generally be __overridden__ by each shipper.
+
+15) __failureNotifyCancel(cancelData, statusCode, error)__**:
+
+It will be called from `parseHttpResponse` when there is failure. This function in turn calls `cancelNotificationOver` with `isCancelSuccessfullyNotified` as false.
+
+16) __successNotifyCancel(cancelData, statusCode, body)__**:
+
+It will be called from `parseHttpResponse` when there is success. This function in turn calls `cancelNotificationOver` with `isCancelSuccessfullyNotified` as true.
+
+17) __cancelNotificationOver(isCancelSuccessfullyNotified, cancelData, code, body)__:
+
+This takes as its first argument a flag, which indicates whether the cancellation was successful or not.
+
+
 ### How to start writing a Plugin
 
 I have been through the documentation and FAQ. It is great but still I dont know where to start. Then this section is for you.
