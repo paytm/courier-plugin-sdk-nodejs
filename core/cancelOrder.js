@@ -286,7 +286,7 @@ cancelPlugin.prototype.hitHttpApi = function(cancelData, reqOpts) {
         self            = this;
 
     /* LOG what is being sent over network */
-    self.logger.log('Canel order request sent with reqOpts', reqOpts);
+    self.logger.log('Cancel order request sent with reqOpts', reqOpts);
 
     REQUEST(reqOpts, self.parseHttpResponse.bind(self, cancelData));
 

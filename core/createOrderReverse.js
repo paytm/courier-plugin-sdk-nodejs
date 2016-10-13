@@ -326,7 +326,7 @@ revOrderCreationPlugin.prototype.failureOrderCreation = function(revOrderCreatio
 
     var self = this;
 
-    self.orderCreationOver(false, revOrderCreationData, statusCode, error.message);
+    self.orderCreationOver(false, revOrderCreationData, statusCode, _.get(error, 'message') || error);
 
 };
 
